@@ -6,37 +6,59 @@
   <title>Bingo Matemático</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    body{
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin:0;
-      background:linear-gradient(135deg,#6ab7ff,#e6f0ff);
-      min-height:100vh;
-      display:flex;justify-content:center;align-items:flex-start;padding:20px
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: linear-gradient(135deg,#5dade2,#a569bd);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
     }
-    .container{width:100%;max-width:1100px;background:#fff;border-radius:14px;
-      box-shadow:0 6px 22px rgba(0,0,0,0.12);overflow:hidden}
-    header{background:#1976d2;color:#fff;padding:20px}
-    header h1{margin:0;font-size:1.6rem;text-align:center}
-    .content{padding:20px}
-    .screen{display:none}
-    .screen.active{display:block}
-    .btn{background:#1976d2;color:#fff;border:none;padding:10px 18px;border-radius:8px;
-      cursor:pointer;font-weight:600;transition:.2s}
-    .btn:hover{background:#125ea8}
-    .btn.secondary{background:#2dbb89}
-    .btn.secondary:hover{background:#22966d}
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      overflow: hidden;
+      animation: fadeIn .5s ease-in;
+    }
+    @keyframes fadeIn {from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+    header {
+      background: #8e44ad;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    header h1 {margin:0;font-size:1.8rem}
+    .content {padding: 20px;}
+    .screen {display:none}
+    .screen.active {display:block}
+    .btn {
+      background: #8e44ad;
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: .2s;
+    }
+    .btn:hover {background:#6c3483}
+    .btn.secondary {background:#27ae60}
+    .btn.secondary:hover{background:#1e8449}
     .btn.ghost{background:#fff;border:1px solid #ccc;color:#444}
     .controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
     label{font-weight:600;display:block;margin-top:10px}
-    input[type=number],select{width:100%;padding:8px;border-radius:6px;border:1px solid #ccc}
-    .grid{display:grid;gap:4px}
-    .cell{border:1px solid #ccc;text-align:center;padding:6px;font-weight:600}
-    .cell.free{background:#1976d2;color:#fff}
-    .history{background:#f9f9f9;border:1px solid #eee;border-radius:8px;padding:10px;
+    input,select{width:100%;padding:8px;border-radius:6px;border:1px solid #ccc}
+    .history{background:#fafafa;border:1px solid #ddd;border-radius:8px;padding:10px;
       max-height:200px;overflow-y:auto;margin-top:12px}
-    .expression{font-size:1.3rem;font-weight:700;color:#1976d2;margin:20px 0}
+    .expression{font-size:1.4rem;font-weight:700;color:#8e44ad;margin:20px 0}
     footer{text-align:center;font-size:.8rem;color:#666;padding:12px}
-    .check-area{margin-top:15px;padding:10px;border:1px solid #ddd;border-radius:8px;background:#fafafa}
+    .check-area{margin-top:15px;padding:10px;border:1px solid #ddd;border-radius:8px;background:#f4f4f4}
+    .timer-box{margin-top:15px;padding:10px;background:#eef;border-radius:8px}
   </style>
 </head>
 <body>
@@ -99,6 +121,11 @@
           <label><input type="checkbox" id="op-mul">×</label>
           <label><input type="checkbox" id="op-div">÷</label>
         </div>
+        <h3>Timers</h3>
+        <label>Intervalo automático de sorteio (segundos, 0 = desativado):</label>
+        <input type="number" id="auto-interval" value="0"/>
+        <label>Cronômetro regressivo (minutos, 0 = sem limite):</label>
+        <input type="number" id="countdown" value="0"/>
         <div class="controls">
           <button class="btn secondary" onclick="startGame()">Iniciar Sorteio</button>
           <button class="btn ghost" data-target="home">Voltar</button>
@@ -112,7 +139,10 @@
         <div class="controls">
           <button class="btn" onclick="drawExpression()">Sortear expressão</button>
           <button class="btn secondary" onclick="clearDraws()">Limpar sorteio</button>
-          <button class="btn ghost" data-target="home">Encerrar</button>
+          <button class="btn ghost" data-target="home" onclick="stopTimers()">Encerrar</button>
+        </div>
+        <div class="timer-box">
+          <strong>Cronômetro:</strong> <span id="countdown-display">--:--</span>
         </div>
         <h3>Histórico</h3>
         <div id="history" class="history"></div>
@@ -131,10 +161,10 @@
   </div>
 
   <script>
-    // --- Estado ---
     let generatedCards = [];
     let expressions = [];
     let results = new Set();
+    let autoTimer=null, countdownTimer=null, timeLeft=0;
 
     document.querySelectorAll("[data-target]").forEach(btn=>{
       btn.addEventListener("click",()=>showScreen(btn.getAttribute("data-target")));
@@ -144,7 +174,7 @@
       document.getElementById(id).classList.add("active");
     }
 
-    // ---- Cartelas ----
+    // Cartelas
     function generateCard(min,max,size){
       const set=new Set();
       while(set.size<size*size){set.add(getRandom(min,max))}
@@ -179,11 +209,47 @@
       doc.save("cartelas.pdf");
     };
 
-    // ---- Sorteio ----
+    // Sorteio
     function startGame(){
-      expressions=[];
-      results=new Set();
+      expressions=[]; results=new Set();
+      document.getElementById("history").innerHTML="";
+      document.getElementById("current-expression").textContent="Clique em 'Sortear expressão'";
       showScreen("draw");
+      stopTimers();
+
+      // Auto timer
+      const autoInt=parseInt(document.getElementById("auto-interval").value);
+      if(autoInt>0){
+        autoTimer=setInterval(()=>{drawExpression()},autoInt*1000);
+      }
+
+      // Countdown
+      const mins=parseInt(document.getElementById("countdown").value);
+      if(mins>0){
+        timeLeft=mins*60;
+        updateCountdown();
+        countdownTimer=setInterval(()=>{
+          timeLeft--;
+          updateCountdown();
+          if(timeLeft<=0){
+            stopTimers();
+            alert("Tempo encerrado!");
+          }
+        },1000);
+      }else{
+        document.getElementById("countdown-display").textContent="--:--";
+      }
+    }
+
+    function stopTimers(){
+      if(autoTimer) clearInterval(autoTimer);
+      if(countdownTimer) clearInterval(countdownTimer);
+      autoTimer=null; countdownTimer=null;
+    }
+    function updateCountdown(){
+      const m=Math.floor(timeLeft/60);
+      const s=timeLeft%60;
+      document.getElementById("countdown-display").textContent=`${m}:${s.toString().padStart(2,"0")}`;
     }
 
     function drawExpression(){
@@ -192,8 +258,7 @@
       const drawMin=parseInt(document.getElementById("draw-min").value);
       const drawMax=parseInt(document.getElementById("draw-max").value);
 
-      let expr="",val=0;
-      let tries=0;
+      let expr="",val=0,tries=0;
       do{
         [expr,val]=generateExpression(difficulty,exprRange);
         tries++;
@@ -227,11 +292,11 @@
         const op=ops[getRandom(0,count-1)];
         expr+=" "+op+" "+numbers[i];
       }
-      // dificuldade difícil: chance moderada de parênteses
       if(level==="hard" && Math.random()<0.4){
         expr="("+expr+")";
       }
-      try{var val=eval(expr);}catch{val=NaN;}
+      let val;
+      try{val=eval(expr);}catch{val=NaN;}
       return [expr,Math.round(val)];
     }
 
@@ -240,18 +305,14 @@
     function opMul(){return document.getElementById("op-mul").checked}
     function opDiv(){return document.getElementById("op-div").checked}
 
-    // Verificar cartelas
     function checkNumber(){
       const n=parseInt(document.getElementById("check-number").value);
       if(!generatedCards.length){document.getElementById("check-result").textContent="Nenhuma cartela foi gerada.";return;}
       let found=false;
-      generatedCards.forEach((c,i)=>{
-        if(c.includes(n)) found=true;
-      });
+      generatedCards.forEach(c=>{if(c.includes(n)) found=true;});
       document.getElementById("check-result").textContent=found?"Número presente em alguma cartela.":"Número não encontrado.";
     }
 
-    // utils
     function getRandom(min,max){return Math.floor(Math.random()*(max-min+1))+min}
   </script>
 </body>
