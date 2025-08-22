@@ -642,21 +642,33 @@
             document.getElementById(screenId).classList.add('active');
         }
         
-        // Funções para a geração de cartelas
+        // Função para gerar cartelas - CORRIGIDA
         function generateCards() {
             const min = parseInt(document.getElementById('min-number').value);
             const max = parseInt(document.getElementById('max-number').value);
             const count = parseInt(document.getElementById('card-count').value);
+            const errorMessage = document.getElementById('error-message');
             
             // Validação básica
             if (min >= max) {
-                alert('O número mínimo deve ser menor que o número máximo.');
+                errorMessage.textContent = 'O número mínimo deve ser menor que o número máximo.';
+                errorMessage.style.display = 'block';
                 return;
             }
             
             if (count < 1) {
-                alert('A quantidade de cartelas deve ser pelo menos 1.');
+                errorMessage.textContent = 'A quantidade de cartelas deve ser pelo menos 1.';
+                errorMessage.style.display = 'block';
                 return;
+            }
+            
+            // Verificar se o intervalo é suficiente para gerar números únicos
+            const rangeSize = max - min + 1;
+            if (rangeSize < 24) {
+                errorMessage.style.display = 'block';
+                return;
+            } else {
+                errorMessage.style.display = 'none';
             }
             
             // Gerar cartelas
@@ -671,12 +683,25 @@
             document.getElementById('generated-cards').style.display = 'block';
         }
         
+        // Função para gerar uma cartela de bingo - CORRIGIDA
         function generateBingoCard(min, max) {
             // Gerar 24 números únicos dentro do intervalo
             let numbers = new Set();
-            while (numbers.size < 24) {
-                numbers.add(Math.floor(Math.random() * (max - min + 1)) + min);
+            const rangeSize = max - min + 1;
+            
+            // Se o intervalo for grande o suficiente, gerar números únicos
+            if (rangeSize >= 24) {
+                while (numbers.size < 24) {
+                    numbers.add(Math.floor(Math.random() * rangeSize) + min);
+                }
+            } else {
+                // Se o intervalo for pequeno, permitir números repetidos
+                // (não ideal para bingo, mas evita o travamento)
+                for (let i = 0; i < 24; i++) {
+                    numbers.add(Math.floor(Math.random() * rangeSize) + min);
+                }
             }
+            
             numbers = Array.from(numbers);
             
             // Embaralhar
@@ -690,6 +715,27 @@
             
             return numbers;
         }
+        
+        // Atualizar a pré-visualização da cartela - CORRIGIDA
+        function updateCardPreview() {
+            const min = parseInt(document.getElementById('min-number').value) || 1;
+            const max = parseInt(document.getElementById('max-number').value) || 50;
+            const errorMessage = document.getElementById('error-message');
+            
+            if (min >= max) {
+                errorMessage.textContent = 'O número mínimo deve ser menor que o número máximo.';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
+            // Verificar se o intervalo é suficiente
+            const rangeSize = max - min + 1;
+            if (rangeSize < 24) {
+                errorMessage.style.display = 'block';
+                return;
+            } else {
+                errorMessage.style.display = 'none';
+            }
         
         function showPDFPreview() {
             const previewContainer = document.getElementById('pdf-preview');
