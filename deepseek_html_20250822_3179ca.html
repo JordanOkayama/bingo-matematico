@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Cartelas de Bingo</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 600px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="number"]:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #2980b9;
+        }
+        
+        .preview {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .preview h2 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 20px;
+        }
+        
+        .cartela {
+            display: inline-block;
+            margin: 15px;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .cartela table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        
+        .cartela td {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            vertical-align: middle;
+            border: 1px solid #ddd;
+            font-weight: bold;
+        }
+        
+        .cartela .free {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .status {
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+        
+        .loading {
+            background-color: #fff3cd;
+            color: #856404;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .loading::after {
+            content: "";
+            width: 20px;
+            height: 20px;
+            border: 3px solid transparent;
+            border-top: 3px solid #856404;
+            border-radius: 50%;
+            margin-left: 10px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        
+        .options {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .options label {
+            display: flex;
+            align-items: center;
+            font-weight: normal;
+        }
+        
+        .options input[type="checkbox"] {
+            margin-right: 5px;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .actions button {
+            flex: 1;
+        }
+        
+        .secondary {
+            background-color: #95a5a6;
+        }
+        
+        .secondary:hover {
+            background-color: #7f8c8d;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .cartela {
+                margin: 10px 0;
+                transform: scale(0.9);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gerar Cartelas de Bingo</h1>
+        
+        <div class="form-group">
+            <label for="minNumber">Número Mínimo:</label>
+            <input type="number" id="minNumber" min="1" value="1">
+        </div>
+        
+        <div class="form-group">
+            <label for="maxNumber">Número Máximo:</label>
+            <input type="number" id="maxNumber" min="2" value="75">
+        </div>
+        
+        <div class="form-group">
+            <label for="quantity">Quantidade de Cartelas:</label>
+            <input type="number" id="quantity" min="1" max="20" value="4">
+        </div>
+        
+        <button id="generateBtn">Gerar Cartelas</button>
+        
+        <div class="status" id="statusMessage"></div>
+        
+        <div class="preview">
+            <h2>Pré-visualização da Cartela</h2>
+            <div id="previewContainer"></div>
+        </div>
+        
+        <div class="options">
+            <label><input type="checkbox" id="mathBingo"> Bingo Matemático</label>
+        </div>
+        
+        <div class="actions">
+            <button id="waitBtn" class="secondary">Aguarde</button>
+            <button id="exitBtn" class="secondary">Sair da página</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const minNumberInput = document.getElementById('minNumber');
+            const maxNumberInput = document.getElementById('maxNumber');
+            const quantityInput = document.getElementById('quantity');
+            const generateBtn = document.getElementById('generateBtn');
+            const previewContainer = document.getElementById('previewContainer');
+            const statusMessage = document.getElementById('statusMessage');
+            const mathBingoCheckbox = document.getElementById('mathBingo');
+            const waitBtn = document.getElementById('waitBtn');
+            const exitBtn = document.getElementById('exitBtn');
+            
+            // Debounce function para evitar processamento excessivo
+            function debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+            
+            // Validação de entrada
+            function validateInputs() {
+                const min = parseInt(minNumberInput.value);
+                const max = parseInt(maxNumberInput.value);
+                const quantity = parseInt(quantityInput.value);
+                
+                if (isNaN(min) || isNaN(max) || isNaN(quantity)) {
+                    showStatus('Por favor, insira valores numéricos válidos.', 'error');
+                    return false;
+                }
+                
+                if (min >= max) {
+                    showStatus('O número mínimo deve ser menor que o número máximo.', 'error');
+                    return false;
+                }
+                
+                if (max - min < 24) {
+                    showStatus('A diferença entre mínimo e máximo deve ser de pelo menos 24.', 'error');
+                    return false;
+                }
+                
+                if (quantity < 1 || quantity > 20) {
+                    showStatus('A quantidade de cartelas deve estar entre 1 e 20.', 'error');
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            // Gerar números aleatórios sem repetição
+            function generateUniqueNumbers(min, max, count) {
+                const numbers = [];
+                const available = Array.from({length: max - min + 1}, (_, i) => i + min);
+                
+                for (let i = 0; i < count; i++) {
+                    const randomIndex = Math.floor(Math.random() * available.length);
+                    numbers.push(available[randomIndex]);
+                    available.splice(randomIndex, 1);
+                }
+                
+                return numbers;
+            }
+            
+            // Gerar uma cartela
+            function generateCard(min, max) {
+                const numbers = generateUniqueNumbers(min, max, 24);
+                const card = [];
+                
+                for (let i = 0; i < 5; i++) {
+                    const row = [];
+                    for (let j = 0; j < 5; j++) {
+                        if (i === 2 && j === 2) {
+                            row.push('FREE');
+                        } else {
+                            row.push(numbers[i * 5 + j - (i > 2 ? 1 : 0)]);
+                        }
+                    }
+                    card.push(row);
+                }
+                
+                return card;
+            }
+            
+            // Exibir cartela na visualização
+            function renderCard(card) {
+                const table = document.createElement('table');
+                
+                for (let i = 0; i < 5; i++) {
+                    const row = document.createElement('tr');
+                    for (let j = 0; j < 5; j++) {
+                        const cell = document.createElement('td');
+                        cell.textContent = card[i][j];
+                        if (card[i][j] === 'FREE') {
+                            cell.classList.add('free');
+                        }
+                        row.appendChild(cell);
+                    }
+                    table.appendChild(row);
+                }
+                
+                const cardElement = document.createElement('div');
+                cardElement.classList.add('cartela');
+                cardElement.appendChild(table);
+                
+                return cardElement;
+            }
+            
+            // Gerar todas as cartelas
+            function generateAllCards() {
+                if (!validateInputs()) return;
+                
+                showStatus('Gerando cartelas...', 'loading');
+                
+                // Usar setTimeout para permitir que a UI atualize antes do processamento
+                setTimeout(() => {
+                    try {
+                        const min = parseInt(minNumberInput.value);
+                        const max = parseInt(maxNumberInput.value);
+                        const quantity = parseInt(quantityInput.value);
+                        
+                        previewContainer.innerHTML = '';
+                        
+                        for (let i = 0; i < quantity; i++) {
+                            const card = generateCard(min, max);
+                            previewContainer.appendChild(renderCard(card));
+                        }
+                        
+                        showStatus('Cartelas geradas com sucesso!', 'success');
+                    } catch (error) {
+                        showStatus('Erro ao gerar cartelas: ' + error.message, 'error');
+                    }
+                }, 100);
+            }
+            
+            // Exibir mensagem de status
+            function showStatus(message, type) {
+                statusMessage.textContent = message;
+                statusMessage.className = 'status';
+                statusMessage.classList.add(type);
+                statusMessage.style.display = 'flex';
+                
+                // Ocultar mensagem de sucesso após 3 segundos
+                if (type === 'success') {
+                    setTimeout(() => {
+                        statusMessage.style.display = 'none';
+                    }, 3000);
+                }
+            }
+            
+            // Event listeners com debounce para melhor performance
+            minNumberInput.addEventListener('input', debounce(function() {
+                const min = parseInt(minNumberInput.value);
+                const max = parseInt(maxNumberInput.value);
+                
+                if (!isNaN(min) && !isNaN(max) && min >= max) {
+                    maxNumberInput.value = min + 1;
+                }
+            }, 500));
+            
+            maxNumberInput.addEventListener('input', debounce(function() {
+                const min = parseInt(minNumberInput.value);
+                const max = parseInt(maxNumberInput.value);
+                
+                if (!isNaN(min) && !isNaN(max) && max <= min) {
+                    minNumberInput.value = max - 1;
+                }
+                
+                if (max - min < 24) {
+                    showStatus('A diferença entre mínimo e máximo deve ser de pelo menos 24.', 'error');
+                } else {
+                    statusMessage.style.display = 'none';
+                }
+            }, 500));
+            
+            generateBtn.addEventListener('click', generateAllCards);
+            
+            waitBtn.addEventListener('click', function() {
+                showStatus('Aguardando...', 'loading');
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 2000);
+            });
+            
+            exitBtn.addEventListener('click', function() {
+                if (confirm('Tem certeza que deseja sair?')) {
+                    showStatus('Saindo...', 'loading');
+                    setTimeout(() => {
+                        window.close();
+                    }, 1000);
+                }
+            });
+            
+            // Gerar cartelas iniciais
+            generateAllCards();
+        });
+    </script>
+</body>
+</html>
