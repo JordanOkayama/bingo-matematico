@@ -1,79 +1,166 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Bingo Matemático — Jogo Completo</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bingo Matemático — V2</title>
 
-  <!-- jsPDF para exportar cartelas (opcional) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- jsPDF (opcional, para exportar cartelas) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-  <style>
-    /* --- Estilos principais (simplicados e responsivos) --- */
-    *{box-sizing:border-box}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:linear-gradient(180deg,#eef6ff,#ffffff);min-height:100vh;margin:0;padding:20px;display:flex;flex-direction:column;align-items:center}
-    .container{width:100%;max-width:1200px;background:#fff;border-radius:12px;box-shadow:0 12px 30px rgba(30,50,100,0.08);overflow:hidden}
-    header{background:#1765c1;color:#fff;padding:18px 22px}
-    header h1{margin:0;font-size:1.4rem}
-    .content{padding:20px}
-    .screen{display:none}
-    .screen.active{display:block}
-    .row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
-    .col{flex:1;min-width:220px}
-    label{display:block;font-weight:600;margin-bottom:6px;color:#234}
-    input[type=number],select{width:100%;padding:10px;border:1px solid #d6e4ff;border-radius:8px}
-    input[type=checkbox]{transform:scale(1.02);margin-right:8px}
-    .btn{display:inline-block;padding:10px 16px;border-radius:999px;border:none;background:#1765c1;color:#fff;font-weight:700;cursor:pointer}
-    .btn.secondary{background:#18a37b}
-    .btn.ghost{background:transparent;border:1px solid #ddd;color:#333;padding:8px 12px}
-    .controls{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
-    .warn{background:#fff3f3;color:#802020;padding:10px;border-radius:8px;border:1px solid #f3c6c6;display:none;margin-top:8px}
-    .ok{background:#f0fff6;color:#0b6620;padding:10px;border-radius:8px;border:1px solid #b9f0cf;display:none;margin-top:8px}
-    .card-preview{margin-top:12px;display:grid;gap:6px}
-    .cell{background:#f7fbff;border:1px solid #e3efff;padding:10px;text-align:center;border-radius:6px;font-weight:700;min-height:48px;display:flex;align-items:center;justify-content:center;user-select:none}
-    .cell.marked{background:#ffd59e;border-color:#ffb26a;color:#2b2b2b}
-    .cell.free{background:#1765c1;color:#fff}
-    .grid-wrapper{max-width:900px;margin-top:12px}
-    .pdf-preview{margin-top:18px;padding:12px;border-radius:8px;border:1px dashed #cfe1ff;background:#fbfdff}
-    .pdf-card{padding:8px;border:1px solid #e6f2ff;border-radius:6px;background:#fff}
-    .game-area{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-top:12px}
-    @media (max-width:980px){.game-area{grid-template-columns:1fr}}
-    .cards-list{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-    @media (max-width:680px){.cards-list{grid-template-columns:1fr}}
-    .cartela{border:1px solid #e6f2ff;border-radius:8px;padding:10px;background:#fff}
-    .cartela-title{font-weight:700;color:#1765c1;margin-bottom:8px;text-align:center}
-    .controls-small{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-    .history{max-height:300px;overflow:auto;border:1px solid #e6f2ff;padding:10px;border-radius:8px;background:#fafcff}
-    .expression-display{font-size:1.5rem;font-weight:800;padding:14px;border-radius:8px;background:#f1f7ff;border:1px solid #d8e9ff;text-align:center;min-height:64px;display:flex;align-items:center;justify-content:center}
-    .number-display{font-size:2.4rem;font-weight:900;color:#1765c1;text-align:center;padding:8px}
-    .notify{padding:10px;border-radius:8px;margin-top:8px}
-    .notify.info{background:#eef6ff;border:1px solid #d6eaff;color:#124a86}
-    .notify.success{background:#f0fff6;border:1px solid #bff0cf;color:#0b6620}
-    .notify.warn{background:#fffaea;border:1px solid #f4e1c4;color:#6a4a00}
-  </style>
+<style>
+  :root{
+    --primary:#1b6bf2;
+    --primary-600:#1354c2;
+    --accent:#16a085;
+    --danger:#ef4444;
+    --bg:#0f172a; /* slate-900 */
+    --glass: rgba(255,255,255,0.08);
+    --card:#0b1225;
+    --muted:#94a3b8;
+    --ok:#16a34a;
+    --warn:#f59e0b;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+    color:#e5e7eb;
+    background:
+      radial-gradient(1200px 800px at 100% 0%, rgba(27,107,242,.15), transparent 60%),
+      radial-gradient(1000px 600px at 0% 100%, rgba(22,160,133,.15), transparent 60%),
+      linear-gradient(180deg,#0b1020 0%, #0c132e 60%, #0f172a 100%);
+  }
+  .container{
+    width:100%;
+    max-width:1200px;
+    margin:0 auto;
+    padding:24px;
+  }
+  header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 22px;margin-bottom:16px;
+    background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:16px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 20px 50px rgba(2,6,23,.4), inset 0 1px 0 rgba(255,255,255,.06);
+  }
+  header h1{font-size:1.2rem;margin:0;color:#fff;letter-spacing:.3px}
+  .screen{display:none}
+  .screen.active{display:block}
+  .row{display:flex;gap:16px;flex-wrap:wrap}
+  .col{flex:1;min-width:240px}
+  label{display:block;font-weight:700;margin-bottom:6px;color:#cbd5e1;font-size:.92rem}
+  input[type=number], select, input[type=text]{
+    width:100%;padding:12px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.09);
+    background:rgba(255,255,255,.06); color:#e5e7eb; outline:none;
+  }
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button{ -webkit-appearance: none; margin: 0; }
+  input[type=checkbox]{transform:scale(1.15);margin-right:8px}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:12px 18px;border-radius:999px;border:1px solid transparent;
+    background:linear-gradient(180deg,var(--primary),var(--primary-600));
+    color:#fff;font-weight:800;cursor:pointer;letter-spacing:.3px;
+    box-shadow:0 10px 30px rgba(27,107,242,.35);
+  }
+  .btn.secondary{background:linear-gradient(180deg,var(--accent),#10836f);box-shadow:0 10px 30px rgba(22,160,133,.35)}
+  .btn.ghost{background:transparent;border-color:rgba(255,255,255,.16);color:#e5e7eb}
+  .btn.warn{background:linear-gradient(180deg,#f59e0b,#c27807)}
+  .btn.danger{background:linear-gradient(180deg,#ef4444,#b91c1c)}
+  .controls{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+  .panel{
+    background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:16px;padding:18px 18px 14px 18px;margin-bottom:16px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+  }
+  .hero{
+    display:grid;grid-template-columns: repeat( auto-fit, minmax(260px, 1fr) ); gap:16px;
+  }
+  .hero-card{
+    padding:20px;border-radius:18px;border:1px solid rgba(255,255,255,.08);
+    background: radial-gradient(600px 300px at 20% -10%, rgba(27,107,242,.25), transparent 40%),
+                radial-gradient(600px 300px at 120% 120%, rgba(22,160,133,.22), transparent 40%),
+                rgba(255,255,255,.05);
+    display:flex;flex-direction:column;gap:10px;justify-content:space-between;
+    box-shadow: 0 16px 50px rgba(2,6,23,.45);
+  }
+  .hero-card h3{margin:0;color:#fff}
+  .hero-card p{margin:0;color:#cbd5e1}
+  .chip{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:.86rem;color:#cbd5e1}
+  .muted{color:#94a3b8}
+  .warn{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);color:#fde68a;padding:10px;border-radius:12px;display:none}
+  .ok{background:rgba(22,163,74,.12);border:1px solid rgba(22,163,74,.25);color:#86efac;padding:10px;border-radius:12px;display:none}
+  .card-preview{display:grid;gap:6px}
+  .cell{
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.1);
+    padding:12px;text-align:center;border-radius:10px;font-weight:800;min-height:52px;
+    display:flex;align-items:center;justify-content:center;color:#e2e8f0;
+  }
+  .cell.free{background:linear-gradient(180deg,var(--primary),var(--primary-600));color:#fff;border-color:transparent}
+  .cell.marked{background:linear-gradient(180deg,#ffd59e,#ffb26a);border-color:#ffb26a;color:#1f2937}
+  .pdf-preview{display:grid;grid-template-columns:repeat( auto-fit, minmax(260px, 1fr) ); gap:12px}
+  .pdf-card{padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05)}
+  .game-area{display:grid;grid-template-columns: 1.7fr 1fr;gap:16px}
+  @media (max-width:980px){.game-area{grid-template-columns:1fr}}
+  .history{max-height:320px;overflow:auto;border:1px dashed rgba(255,255,255,.18);padding:10px;border-radius:12px;background:rgba(255,255,255,.03)}
+  .expression-display{
+    font-size:1.6rem;font-weight:900;text-align:center;
+    padding:16px;border-radius:14px;background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.12);min-height:70px
+  }
+  .number-display{font-size:2.2rem;font-weight:900;color:#fff;text-align:center}
+  .cards-list{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  @media (max-width:680px){.cards-list{grid-template-columns:1fr}}
+  .cartela{border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px;background:rgba(255,255,255,.04)}
+  .cartela-title{font-weight:900;color:#e2e8f0;margin-bottom:8px;text-align:center}
+  .notify{padding:10px;border-radius:12px}
+  .notify.info{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25)}
+  .notify.success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25)}
+  .notify.warn{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25)}
+  .toggle{
+    display:inline-flex;align-items:center;gap:10px;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.05);cursor:pointer;
+  }
+  .toggle input{transform:scale(1.1)}
+</style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>Bingo Matemático — Jogo Completo</h1>
+      <h1>🎯 Bingo Matemático</h1>
+      <div class="chip">Versão 2 — mais esperto & bonito</div>
     </header>
 
-    <div class="content">
-      <!-- HOME -->
-      <div id="home" class="screen active">
-        <h2>Bem-vindo</h2>
-        <p>Gere cartelas, configure o sorteio e inicie a partida. A expressão sorteada aparece sem o resultado para os alunos resolverem.</p>
-        <div class="controls" style="margin-top:12px">
-          <button class="btn" data-target="generate">Gerar/Editar Cartelas</button>
-          <button class="btn secondary" data-target="config">Configurar Sorteio</button>
-          <button class="btn ghost" data-target="game" id="btn-go-game">Ir para Jogo</button>
+    <!-- HOME -->
+    <section id="home" class="screen active">
+      <div class="hero">
+        <div class="hero-card">
+          <div>
+            <h3>🧩 Gerar cartela</h3>
+            <p>Crie cartelas N×N com ou sem FREE central e exporte para PDF.</p>
+          </div>
+          <div class="controls"><button class="btn" data-target="generate">Gerar cartela</button></div>
+        </div>
+        <div class="hero-card">
+          <div>
+            <h3>🎲 Começar sorteio</h3>
+            <p>Configure operações, dificuldade e intervalos. Inicie o sorteio (com ou sem cartelas).</p>
+          </div>
+          <div class="controls"><button class="btn secondary" data-target="config">Começar sorteio</button></div>
         </div>
       </div>
+    </section>
 
-      <!-- GERAÇÃO DE CARTELAS -->
-      <div id="generate" class="screen">
-        <h2>Gerar Cartelas</h2>
-
+    <!-- GERAÇÃO DE CARTELAS -->
+    <section id="generate" class="screen">
+      <div class="panel">
+        <h2>🧩 Gerar cartelas</h2>
         <div class="row">
           <div class="col">
             <label for="min-number">Número mínimo na cartela</label>
@@ -95,63 +182,62 @@
               <option value="9">9 × 9</option>
             </select>
           </div>
-        </div>
-
-        <div class="row" style="margin-top:12px;align-items:center">
           <div class="col">
             <label for="card-count">Quantidade de cartelas</label>
             <input id="card-count" type="number" value="6" min="1" max="200">
           </div>
-          <div style="min-width:220px;display:flex;flex-direction:column;gap:6px">
-            <label><input id="free-center" type="checkbox" checked> Incluir FREE no centro (se N ímpar)</label>
-            <label><input id="allow-repeats" type="checkbox"> Permitir repetições se intervalo insuficiente</label>
+        </div>
+        <div class="row" style="margin-top:6px">
+          <div class="col" style="min-width:240px">
+            <label class="toggle"><input id="free-center" type="checkbox" checked> Incluir FREE no centro (se N ímpar)</label>
+          </div>
+          <div class="col" style="min-width:240px">
+            <label class="toggle"><input id="allow-repeats" type="checkbox"> Permitir repetições se intervalo insuficiente</label>
           </div>
         </div>
 
-        <div id="validation" class="warn"></div>
-        <div id="validation-ok" class="ok"></div>
+        <div id="validation" class="warn" style="margin-top:10px"></div>
+        <div id="validation-ok" class="ok" style="margin-top:10px"></div>
 
-        <div class="grid-wrapper">
-          <h3>Pré-visualização da cartela</h3>
+        <div style="margin-top:14px">
+          <h3 class="muted" style="margin:0 0 6px 0">Pré-visualização</h3>
           <div id="card-preview" class="card-preview"></div>
         </div>
 
-        <div style="margin-top:14px" class="controls">
-          <button id="btn-generate" class="btn">Gerar Cartelas</button>
+        <div class="controls" style="margin-top:14px">
+          <button id="btn-generate" class="btn">Gerar cartelas</button>
           <button class="btn ghost" data-target="home">Voltar</button>
-        </div>
-
-        <div id="generated-area" style="display:none;margin-top:14px">
-          <h3>Cartelas geradas</h3>
-          <div id="generated-count" style="margin-bottom:8px"></div>
-          <div id="generated-cards-list" class="pdf-preview"></div>
-          <div style="margin-top:10px" class="controls">
-            <button id="btn-pdf" class="btn">Exportar PDF (cartelas)</button>
-            <button class="btn ghost" onclick="document.getElementById('generated-area').style.display='none'">Fechar</button>
-          </div>
         </div>
       </div>
 
-      <!-- CONFIGURAÇÃO SORTEIO -->
-      <div id="config" class="screen">
-        <h2>Configurar Sorteio</h2>
-        <p>Escolha operações, dificuldade da expressão e intervalo dos números usados nas expressões.</p>
+      <div id="generated-area" class="panel" style="display:none">
+        <h3>Cartelas geradas</h3>
+        <div id="generated-count" class="muted" style="margin-bottom:8px"></div>
+        <div id="generated-cards-list" class="pdf-preview"></div>
+        <div class="controls">
+          <button id="btn-pdf" class="btn">Exportar PDF</button>
+          <button class="btn ghost" onclick="document.getElementById('generated-area').style.display='none'">Fechar</button>
+        </div>
+      </div>
+    </section>
 
-        <div class="row" style="margin-top:8px">
-          <div style="min-width:260px">
-            <label>Operações (marque as desejadas)</label>
-            <div>
-              <label><input id="op-add" type="checkbox" checked> +</label>
-              <label style="margin-left:8px"><input id="op-sub" type="checkbox" checked> -</label>
-              <label style="margin-left:8px"><input id="op-mul" type="checkbox"> ×</label>
-              <label style="margin-left:8px"><input id="op-div" type="checkbox"> ÷</label>
-            </div>
+    <!-- CONFIGURAÇÕES + INICIAR -->
+    <section id="config" class="screen">
+      <div class="panel">
+        <h2>🎛️ Configurações do sorteio</h2>
+        <div class="row" style="margin-top:6px">
+          <div class="col" style="min-width:260px">
+            <label>Operações</label>
+            <div class="toggle"><input id="op-add" type="checkbox" checked> Adição (+)</div>
+            <div class="toggle" style="margin-top:8px"><input id="op-sub" type="checkbox" checked> Subtração (−)</div>
+            <div class="toggle" style="margin-top:8px"><input id="op-mul" type="checkbox"> Multiplicação (×)</div>
+            <div class="toggle" style="margin-top:8px"><input id="op-div" type="checkbox"> Divisão (÷)</div>
           </div>
 
           <div class="col">
             <label for="expr-difficulty">Dificuldade da expressão</label>
             <select id="expr-difficulty">
-              <option value="easy">Fácil — 2 números, 1 operação</option>
+              <option value="easy">Fácil — 2 números, 1 operação (sem parênteses)</option>
               <option value="normal" selected>Normal — 2 a 5 números, até 3 operações</option>
               <option value="hard">Difícil — 5 a 10 números, até 4 operações + parênteses/colchetes</option>
             </select>
@@ -167,112 +253,145 @@
           </div>
         </div>
 
-        <div style="margin-top:12px" class="controls">
-          <button class="btn" onclick="applyConfig()">Salvar Configurações</button>
-          <button class="btn ghost" data-target="home">Voltar</button>
+        <div class="row" style="margin-top:10px">
+          <div class="col">
+            <label>Intervalo de sorteio (resultado alvo)</label>
+            <div class="row" style="gap:8px">
+              <div class="col">
+                <input id="draw-min" type="number" value="1" min="1" aria-label="mínimo do sorteio">
+              </div>
+              <div class="col">
+                <input id="draw-max" type="number" value="50" min="1" aria-label="máximo do sorteio">
+              </div>
+            </div>
+            <div class="muted" style="margin-top:6px">Esse é o intervalo dos <b>números sorteados</b> (o resultado final das expressões).</div>
+          </div>
         </div>
 
-        <div id="config-info" style="margin-top:12px"></div>
+        <div id="config-info" class="ok" style="display:block;margin-top:12px">Defina e clique em <b>Salvar</b> ou <b>Iniciar sorteio</b>.</div>
+
+        <div class="controls" style="margin-top:10px">
+          <button class="btn" onclick="applyConfig()">Salvar</button>
+          <button class="btn secondary" onclick="startGame()">Iniciar sorteio</button>
+          <button class="btn ghost" data-target="home">Voltar</button>
+        </div>
       </div>
+    </section>
 
-      <!-- TELA DO JOGO -->
-      <div id="game" class="screen">
-        <h2>Bingo — Jogo</h2>
+    <!-- SORTEIO / JOGO -->
+    <section id="game" class="screen">
+      <div class="panel">
+        <h2>🎲 Sorteio</h2>
+        <div class="row" style="align-items:center">
+          <div class="col" style="min-width:240px">
+            <label class="toggle"><input id="toggle-show-cards" type="checkbox" checked> Exibir cartelas na tela</label>
+          </div>
+          <div class="col muted" style="min-width:240px">
+            Resultados únicos: não repetimos expressões nem números já sorteados.
+          </div>
+        </div>
 
-        <div class="game-area">
+        <div class="game-area" style="margin-top:12px">
           <div>
-            <div style="display:flex;gap:12px;align-items:center;justify-content:space-between">
-              <div style="flex:1">
-                <div class="expression-display" id="current-expression">Nenhuma expressão sorteada</div>
-                <div style="display:flex;gap:10px;align-items:center;margin-top:10px">
-                  <div style="flex:1">
-                    <button class="btn" id="btn-draw" onclick="drawExpression()">Sortear expressão</button>
-                    <button class="btn ghost" id="btn-reveal" onclick="revealResult()" style="margin-left:6px">Revelar resultado</button>
-                    <button class="btn secondary" id="btn-reset" onclick="resetGame()" style="margin-left:6px">Reiniciar jogo</button>
-                  </div>
-                  <div style="min-width:140px;text-align:right">
-                    <div style="font-size:.9rem;color:#666">Resultado (oculto):</div>
-                    <div class="number-display" id="current-number">?</div>
-                  </div>
+            <div class="expression-display" id="current-expression">Nenhuma expressão sorteada</div>
+            <div class="row" style="align-items:center;margin-top:10px">
+              <div class="col" style="min-width:280px">
+                <div class="controls">
+                  <button class="btn" id="btn-draw" onclick="drawExpression()">Sortear expressão</button>
+                  <button class="btn ghost" id="btn-reveal" onclick="revealResult()">Revelar resultado</button>
+                  <button class="btn warn" id="btn-reset" onclick="resetGame()">Reiniciar jogo</button>
                 </div>
               </div>
-
-              <div style="width:320px">
-                <div style="font-weight:700;margin-bottom:8px">Expressões sorteadas</div>
-                <div class="history" id="history-list"></div>
-                <div style="margin-top:10px">
-                  <label for="verify-number">Verificar número sorteado</label>
-                  <div style="display:flex;gap:8px;margin-top:6px">
-                    <input id="verify-number" type="number" placeholder="Número..." />
-                    <button class="btn ghost" onclick="verifyNumber()">Verificar</button>
-                  </div>
-                  <div id="verify-result" style="margin-top:8px"></div>
-                </div>
+              <div style="min-width:180px;text-align:right">
+                <div class="muted">Resultado (oculto):</div>
+                <div class="number-display" id="current-number">?</div>
               </div>
             </div>
 
-            <div style="margin-top:14px">
-              <div style="font-weight:800;margin-bottom:8px">Cartelas (marcação automática)</div>
-              <div id="cards-in-game" class="cards-list"></div>
+            <div style="margin-top:12px">
+              <div style="font-weight:800;margin-bottom:8px">Histórico</div>
+              <div class="history" id="history-list"></div>
             </div>
           </div>
 
           <aside>
             <div class="notify info">
-              <strong>Instruções:</strong>
+              <strong>Como usar</strong>
               <ul style="margin:6px 0 0 18px">
-                <li>Sempre gere as cartelas antes de iniciar o jogo.</li>
-                <li>Clique em <em>Sortear expressão</em> — apenas a expressão aparecerá (resultado oculto).</li>
-                <li>Quando quiser, clique em <em>Revelar resultado</em> para mostrar o número e marcar as cartelas automaticamente.</li>
-                <li>Use o verificador para confirmar rapidamente se um número já foi sorteado.</li>
+                <li>Configure e clique em <em>Sortear expressão</em>. Apenas a expressão aparece.</li>
+                <li>Clique em <em>Revelar resultado</em> para mostrar o número e marcar cartelas (se exibidas).</li>
+                <li>Use o verificador para checar se um número já saiu.</li>
               </ul>
             </div>
 
-            <div style="margin-top:12px" class="notify warn" id="winner-box" style="display:none"></div>
+            <div style="margin-top:12px">
+              <label for="verify-number">Verificar número sorteado</label>
+              <div class="row" style="gap:8px;margin-top:6px">
+                <div class="col"><input id="verify-number" type="number" placeholder="Número..."></div>
+                <div><button class="btn ghost" onclick="verifyNumber()">Verificar</button></div>
+              </div>
+              <div id="verify-result" style="margin-top:8px"></div>
+            </div>
+
+            <div id="winner-box" class="notify success" style="display:none;margin-top:12px"></div>
           </aside>
         </div>
 
-        <div style="margin-top:12px" class="controls">
+        <div id="cards-block" style="margin-top:14px">
+          <div style="font-weight:900;margin-bottom:8px">Cartelas (opcional)</div>
+          <div id="cards-in-game" class="cards-list"></div>
+        </div>
+
+        <div class="controls">
           <button class="btn ghost" data-target="home">Voltar ao menu</button>
         </div>
       </div>
-
-    </div>
+    </section>
   </div>
-
-  <footer style="margin-top:16px;font-size:.9rem;color:#555">Bingo Matemático — Implementação completa</footer>
 
   <script>
     // ======= Estado global =======
-    let generatedCards = []; // array de cartelas (cada cartela é array linear N*N com valores ou 'FREE')
+    let generatedCards = []; // cada cartela é array linear N*N com números ou 'FREE'
     let generatedCardSize = 5;
     let cardMin = 1, cardMax = 50;
     let allowRepeats = false, freeCenter = true;
 
-    // Config do sorteio
-    let configOps = ['+','-']; // operações selecionadas
+    // Configurações do sorteio
+    let configOps = ['+','-'];
     let configExprDifficulty = 'normal';
     let configExprNumberMax = 300; // 100|300|500
+    let drawRange = {min:1, max:50};
 
     // Jogo
-    let historyExpressions = []; // lista de {text, result}
-    let drawnResults = new Set(); // números sorteados (resultados)
-    let currentExpressionObj = null; // objeto atual {text, result}
-    let cardDomMap = []; // para rastrear DOM das cartelas em jogo
+    let historyExpressions = []; // [{display, result, plain}]
+    let usedResults = new Set();
+    let usedExpressions = new Set(); // forma canônica
+    let currentExpressionObj = null;
+    let cardDomMap = []; // para atualizar marcações visuais
 
-    // Navegação
-    document.querySelectorAll('[data-target]').forEach(btn => {
-      btn.addEventListener('click', () => showScreen(btn.getAttribute('data-target')));
+    // ======= Navegação =======
+    document.querySelectorAll('[data-target]').forEach(btn=>{
+      btn.addEventListener('click',()=>showScreen(btn.getAttribute('data-target')));
     });
     function showScreen(id){
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
       const el = document.getElementById(id);
-      if (el) el.classList.add('active');
-      if (id === 'generate') updatePreview();
-      if (id === 'game') renderGameCards();
+      if(el) el.classList.add('active');
+      if(id==='generate') updatePreview();
+      if(id==='game'){
+        renderGameCards();
+        applyShowCardsToggle();
+      }
     }
 
-    // ======= Geração de Cartelas (reaproveitado/expandido) =======
+    // ======= UI: Toggle Exibir Cartelas =======
+    document.getElementById('toggle-show-cards').addEventListener('change', applyShowCardsToggle);
+    function applyShowCardsToggle(){
+      const block = document.getElementById('cards-block');
+      block.style.display = document.getElementById('toggle-show-cards').checked ? 'block' : 'none';
+    }
+
+    // ======= Geração de Cartelas =======
     const minInput = document.getElementById('min-number');
     const maxInput = document.getElementById('max-number');
     const sizeSelect = document.getElementById('grid-size');
@@ -285,14 +404,8 @@
 
     function refreshFreeOption(){
       const size = parseInt(sizeSelect.value,10);
-      if (size % 2 === 0){
-        freeCheckbox.checked = false;
-        freeCheckbox.disabled = true;
-        freeCheckbox.parentElement.style.opacity = 0.6;
-      } else {
-        freeCheckbox.disabled = false;
-        freeCheckbox.parentElement.style.opacity = 1;
-      }
+      if(size%2===0){ freeCheckbox.checked=false; freeCheckbox.disabled=true; }
+      else { freeCheckbox.disabled=false; }
     }
 
     [minInput,maxInput,freeCheckbox,repeatsCheckbox,sizeSelect].forEach(el=>{
@@ -300,639 +413,540 @@
       el.addEventListener('change', updatePreview);
     });
 
-    function requiredNumbers(size, freeCenter){
-      return size*size - (freeCenter ? 1 : 0);
-    }
-    function availablePool(min,max){
-      return Math.max(0, max - min + 1);
-    }
-    function hasEnoughUnique(min,max,size,freeCenter){
-      return availablePool(min,max) >= requiredNumbers(size,freeCenter);
-    }
+    function requiredNumbers(size, freeCenter){ return size*size - (freeCenter ? 1 : 0); }
+    function availablePool(min,max){ return Math.max(0, max-min+1); }
 
     function updatePreview(){
-      validationEl.style.display = 'none'; validationOkEl.style.display = 'none';
-      previewContainer.innerHTML = '';
-      const min = parseInt(minInput.value,10) || 1;
-      const max = parseInt(maxInput.value,10) || 1;
-      const size = parseInt(sizeSelect.value,10);
+      validationEl.style.display='none'; validationOkEl.style.display='none';
+      previewContainer.innerHTML='';
+      const min = +minInput.value||1;
+      const max = +maxInput.value||1;
+      const size = +sizeSelect.value;
       const free = !!freeCheckbox.checked;
       const allow = !!repeatsCheckbox.checked;
-
       refreshFreeOption();
 
-      if (min >= max){
-        validationEl.textContent = 'Erro: o valor mínimo deve ser menor que o valor máximo.';
-        validationEl.style.display = 'block';
-        btnGenerate.disabled = true;
-        return;
-      }
-
+      if(min>=max){ showWarn('Mínimo deve ser menor que o máximo.'); btnGenerate.disabled=true; return; }
       const pool = availablePool(min,max);
-      const req = requiredNumbers(size, free);
-
-      if (pool < req && !allow){
-        validationEl.innerHTML = `Intervalo insuficiente: precisa de ${req} números distintos, mas o intervalo tem ${pool}.<br>Marque "Permitir repetições" ou aumente o intervalo.`;
-        validationEl.style.display = 'block';
-        btnGenerate.disabled = true;
-        return;
+      const req = requiredNumbers(size,free);
+      if(pool<req && !allow){
+        showWarn(`Intervalo insuficiente: precisa de ${req} números distintos, mas há ${pool}. Marque "Permitir repetições" ou aumente o intervalo.`);
+        btnGenerate.disabled=true; return;
       }
+      showOk(`Ok: cartela ${size}×${size}, ${free? 'com':'sem'} FREE, ${allow?'permite':'não permite'} repetições.`);
+      btnGenerate.disabled=false;
 
-      validationOkEl.textContent = `Ok: cartela ${size}×${size}, ${free? 'com' : 'sem'} FREE, ${allow ? 'permite' : 'não permite'} repetições.`;
-      validationOkEl.style.display = 'block';
-      btnGenerate.disabled = false;
-
-      previewContainer.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+      previewContainer.style.gridTemplateColumns=`repeat(${size},1fr)`;
       const card = safeGenerateBingoCard(min,max,size,free,allow);
-      for (let i=0;i<size*size;i++){
-        const div = document.createElement('div'); div.className = 'cell';
-        const val = card[i];
-        if (val === 'FREE'){ div.classList.add('free'); div.textContent = 'FREE'; }
-        else div.textContent = String(val);
-        previewContainer.appendChild(div);
+      for(let i=0;i<size*size;i++){
+        const d=document.createElement('div'); d.className='cell';
+        const v=card[i]; d.textContent=(v==='FREE'?'FREE':String(v));
+        if(v==='FREE') d.classList.add('free');
+        previewContainer.appendChild(d);
       }
     }
+    function showWarn(msg){ validationEl.textContent=msg; validationEl.style.display='block'; }
+    function showOk(msg){ validationOkEl.textContent=msg; validationOkEl.style.display='block'; }
 
     function safeGenerateBingoCard(min,max,size,freeCenter,allowRepeats){
       const total = size*size;
       const needed = total - (freeCenter ? 1 : 0);
       const pool = availablePool(min,max);
-      if (!allowRepeats && pool < needed) throw new Error('Pool insuficiente');
+      if(!allowRepeats && pool<needed) throw new Error('Pool insuficiente');
 
       const out = new Array(total);
       const nums = [];
-      if (allowRepeats){
-        while (nums.length < needed) nums.push(getRandomNumber(min,max));
-      } else {
-        const set = new Set();
-        while (set.size < needed) set.add(getRandomNumber(min,max));
-        nums.push(...Array.from(set));
+      if(allowRepeats){ while(nums.length<needed) nums.push(rand(min,max)); }
+      else{
+        const set=new Set();
+        while(set.size<needed) set.add(rand(min,max));
+        nums.push(...set);
       }
-      shuffleArray(nums);
-      let idx = 0;
-      for (let r=0;r<size;r++){
-        for (let c=0;c<size;c++){
-          const pos = r*size + c;
-          if (freeCenter && size%2===1 && r===Math.floor(size/2) && c===Math.floor(size/2)){
-            out[pos] = 'FREE';
-          } else {
-            out[pos] = nums[idx++];
-          }
+      shuffle(nums);
+      let idx=0;
+      for(let r=0;r<size;r++){
+        for(let c=0;c<size;c++){
+          const pos=r*size+c;
+          if(freeCenter && size%2===1 && r===Math.floor(size/2) && c===Math.floor(size/2)) out[pos]='FREE';
+          else out[pos]=nums[idx++];
         }
       }
       return out;
     }
 
-    btnGenerate.addEventListener('click', ()=>{
-      const min = parseInt(minInput.value,10) || 1;
-      const max = parseInt(maxInput.value,10) || 1;
-      const size = parseInt(sizeSelect.value,10);
-      const free = !!freeCheckbox.checked;
-      const count = parseInt(document.getElementById('card-count').value,10) || 1;
-      const allow = !!repeatsCheckbox.checked;
+    document.getElementById('btn-generate').addEventListener('click', ()=>{
+      const min=+minInput.value||1, max=+maxInput.value||1, size=+sizeSelect.value;
+      const free=!!freeCheckbox.checked, count=+(document.getElementById('card-count').value||'1');
+      const allow=!!repeatsCheckbox.checked;
+      if(min>=max){ alert('Mínimo deve ser menor que máximo.'); return; }
+      const pool=availablePool(min,max), req=requiredNumbers(size,free);
+      if(!allow && pool<req){ alert('Intervalo insuficiente para números distintos.'); return; }
 
-      const pool = availablePool(min,max);
-      const req = requiredNumbers(size, free);
-      if (min >= max){ alert('Mínimo deve ser menor que máximo.'); return; }
-      if (!allow && pool < req){ alert(`Intervalo insuficiente: precisa de ${req} números distintos.`); return; }
+      generatedCards=[];
+      for(let i=0;i<count;i++) generatedCards.push(safeGenerateBingoCard(min,max,size,free,allow));
+      generatedCardSize=size; cardMin=min; cardMax=max; allowRepeats=allow; freeCenter=free;
 
-      generatedCards = [];
-      for (let i=0;i<count;i++){
-        generatedCards.push(safeGenerateBingoCard(min,max,size,free,allow));
-      }
-      generatedCardSize = size;
-      cardMin = min; cardMax = max; allowRepeats = allow; freeCenter = free;
-
-      // mostra área de geradas
-      document.getElementById('generated-area').style.display = 'block';
-      document.getElementById('generated-count').textContent = `Foram geradas ${generatedCards.length} cartelas (${size}×${size}).`;
+      document.getElementById('generated-area').style.display='block';
+      document.getElementById('generated-count').textContent=`Geradas ${generatedCards.length} cartelas ${size}×${size}.`;
       renderGeneratedCardsPreview();
-      // atualiza botão "Ir para Jogo" para permitir ir
-      document.getElementById('btn-go-game').disabled = false;
       alert('Cartelas geradas com sucesso!');
     });
 
     function renderGeneratedCardsPreview(){
-      const container = document.getElementById('generated-cards-list');
-      container.innerHTML = '';
-      const wrapper = document.createElement('div');
-      wrapper.style.display = 'grid';
-      wrapper.style.gridTemplateColumns = 'repeat(2,1fr)';
-      wrapper.style.gap = '10px';
-      for (let k=0;k<generatedCards.length;k++){
-        const card = generatedCards[k];
-        const cardDiv = document.createElement('div'); cardDiv.className = 'pdf-card';
-        const title = document.createElement('div'); title.style.fontWeight = 800; title.style.color = '#1765c1';
-        title.textContent = `Cartela ${k+1}`;
+      const container=document.getElementById('generated-cards-list'); container.innerHTML='';
+      for(let k=0;k<generatedCards.length;k++){
+        const card=generatedCards[k];
+        const cardDiv=document.createElement('div'); cardDiv.className='pdf-card';
+        const title=document.createElement('div'); title.style.fontWeight=900; title.textContent=`Cartela ${k+1}`;
         cardDiv.appendChild(title);
-        const grid = document.createElement('div');
-        grid.style.display = 'grid';
-        grid.style.gridTemplateColumns = `repeat(${generatedCardSize}, 1fr)`;
-        grid.style.gap = '4px';
-        grid.style.marginTop = '8px';
-        for (let i=0;i<generatedCardSize*generatedCardSize;i++){
-          const cell = document.createElement('div');
-          cell.style.border = '1px solid #e9f3ff';
-          cell.style.padding = '6px';
-          cell.style.textAlign = 'center';
-          cell.style.fontWeight = '700';
-          cell.style.minHeight = '26px';
-          if (card[i] === 'FREE'){ cell.style.background = '#1765c1'; cell.style.color = '#fff'; cell.textContent = 'FREE'; }
-          else cell.textContent = String(card[i]);
+        const grid=document.createElement('div');
+        grid.style.display='grid'; grid.style.gridTemplateColumns=`repeat(${generatedCardSize},1fr)`; grid.style.gap='6px'; grid.style.marginTop='8px';
+        for(let i=0;i<generatedCardSize*generatedCardSize;i++){
+          const cell=document.createElement('div'); cell.className='cell';
+          const v=card[i];
+          if(v==='FREE'){ cell.classList.add('free'); cell.textContent='FREE'; }
+          else cell.textContent=String(v);
           grid.appendChild(cell);
         }
         cardDiv.appendChild(grid);
-        wrapper.appendChild(cardDiv);
+        container.appendChild(cardDiv);
       }
-      container.appendChild(wrapper);
     }
 
     document.getElementById('btn-pdf').addEventListener('click', ()=>{
-      if (!generatedCards.length){ alert('Nenhuma cartela gerada.'); return; }
+      if(!generatedCards.length){ alert('Nenhuma cartela gerada.'); return; }
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({unit:'pt',format:'a4'});
-      const pageW = doc.internal.pageSize.getWidth();
-      const pageH = doc.internal.pageSize.getHeight();
-      const margin = 36;
-      const cardW = (pageW - margin*3) / 2;
-      const cardH = (pageH - margin*3) / 2;
-      let x = margin, y = margin;
-      for (let i=0;i<generatedCards.length;i++){
-        if (i>0 && i%4===0){ doc.addPage(); x = margin; y = margin; }
+      const doc=new jsPDF({unit:'pt',format:'a4'});
+      const pageW=doc.internal.pageSize.getWidth(), pageH=doc.internal.pageSize.getHeight();
+      const margin=36, cardW=(pageW-margin*3)/2, cardH=(pageH-margin*3)/2;
+      let x=margin, y=margin;
+      for(let i=0;i<generatedCards.length;i++){
+        if(i>0 && i%4===0){ doc.addPage(); x=margin; y=margin; }
         drawCardToPDF(doc, generatedCards[i], x, y, cardW, cardH, generatedCardSize, i+1);
-        if ((i%4)%2 === 0) x += cardW + margin; else { x = margin; y += cardH + margin; }
+        if((i%4)%2===0) x+=cardW+margin; else { x=margin; y+=cardH+margin; }
       }
       doc.save('cartelas-bingo.pdf');
     });
 
-    function drawCardToPDF(doc, card, x, y, w, h, size, cardNum){
-      const cw = w / size; const ch = h / size;
-      doc.setDrawColor(60,110,200);
-      doc.rect(x,y,w,h);
-      for (let r=0;r<size;r++){
-        for (let c=0;c<size;c++){
-          const cx = x + c*cw, cy = y + r*ch;
-          doc.rect(cx, cy, cw, ch);
-          const idx = r*size + c;
-          const val = card[idx];
-          if (val === 'FREE'){
-            doc.setFillColor(23,101,193);
-            doc.rect(cx, cy, cw, ch, 'F');
-            doc.setTextColor(255,255,255);
-          } else {
-            doc.setTextColor(0,0,0);
-          }
-          const text = String(val);
+    function drawCardToPDF(doc, card, x,y,w,h,size, num){
+      const cw=w/size, ch=h/size;
+      doc.setDrawColor(60,110,200); doc.rect(x,y,w,h);
+      for(let r=0;r<size;r++){
+        for(let c=0;c<size;c++){
+          const cx=x+c*cw, cy=y+r*ch, idx=r*size+c, val=card[idx];
+          doc.rect(cx,cy,cw,ch);
+          if(val==='FREE'){ doc.setFillColor(27,107,242); doc.rect(cx,cy,cw,ch,'F'); doc.setTextColor(255,255,255); }
+          else doc.setTextColor(0,0,0);
           doc.setFontSize(Math.max(8, Math.min(20, cw/4)));
-          doc.text(text, cx + cw/2, cy + ch/2, {align:'center',baseline:'middle'});
+          doc.text(String(val), cx+cw/2, cy+ch/2, {align:'center',baseline:'middle'});
         }
       }
-      doc.setFontSize(10);
-      doc.setTextColor(60,110,200);
-      doc.text(`Cartela ${cardNum}`, x + w/2, y + h + 12, {align:'center', baseline:'top'});
+      doc.setFontSize(10); doc.setTextColor(60,110,200);
+      doc.text(`Cartela ${num}`, x+w/2, y+h+12, {align:'center',baseline:'top'});
     }
 
-    // ======= Config do sorteio =======
+    // ======= Configurações do sorteio =======
     function applyConfig(){
-      const ops = [];
-      if (document.getElementById('op-add').checked) ops.push('+');
-      if (document.getElementById('op-sub').checked) ops.push('-');
-      if (document.getElementById('op-mul').checked) ops.push('×');
-      if (document.getElementById('op-div').checked) ops.push('÷');
+      const ops=[];
+      if(document.getElementById('op-add').checked) ops.push('+');
+      if(document.getElementById('op-sub').checked) ops.push('-');
+      if(document.getElementById('op-mul').checked) ops.push('×');
+      if(document.getElementById('op-div').checked) ops.push('÷');
+      if(!ops.length){ alert('Selecione pelo menos uma operação.'); return; }
+      const diff=document.getElementById('expr-difficulty').value;
+      const numMax=+document.getElementById('expr-interval').value || 300;
+      const dmin=+document.getElementById('draw-min').value||1, dmax=+document.getElementById('draw-max').value||50;
+      if(dmin>=dmax){ alert('No intervalo de sorteio, o mínimo deve ser menor que o máximo.'); return; }
 
-      if (!ops.length){ alert('Selecione ao menos uma operação.'); return; }
-      configOps = ops;
-      configExprDifficulty = document.getElementById('expr-difficulty').value;
-      configExprNumberMax = parseInt(document.getElementById('expr-interval').value,10) || 300;
-      document.getElementById('config-info').innerHTML = `<div class="notify info">Configurações salvas: operações [${configOps.join(' ')}], dificuldade ${configExprDifficulty}, números 1–${configExprNumberMax}.</div>`;
-      alert('Configurações aplicadas.');
+      configOps=ops;
+      configExprDifficulty=diff;
+      configExprNumberMax=numMax;
+      drawRange={min:dmin,max:dmax};
+
+      const info=document.getElementById('config-info');
+      info.style.display='block';
+      info.className='ok';
+      info.innerHTML=`Configurações salvas: operações [${configOps.join(' ')}], dificuldade <b>${diff}</b>, números das expressões 1–${numMax}, sorteio ${dmin}–${dmax}.`;
+    }
+    function startGame(){
+      applyConfig(); // valida e salva
+      showScreen('game');
     }
 
-    // ======= Lógica de geração de expressões (construção reversa para garantir resultado inteiro) =======
-    // Estratégia: escolhe um resultado alvo R (dentro do intervalo das cartelas),
-    // e constrói recursivamente uma expressão que avalia para R usando N operandos.
-    // Isso garante que o resultado seja inteiro e que as partes sejam números inteiros.
+    // ======= Geração de Expressões (AST + precedência) =======
+    // Nós construímos uma AST que avalia exatamente para o alvo.
+    // Depois renderizamos com parênteses mínimos; no difícil, aplicamos colchetes de forma ocasional.
+    const PREC = { '+':1, '-':1, '×':2, '÷':2 };
 
     function drawExpression(){
-      // validações
-      if (!generatedCards.length){
-        alert('Gere as cartelas antes de iniciar o sorteio.');
-        return;
-      }
-      // operações e configuração já aplicadas via applyConfig
-      // vamos sortear um resultado alvo dentro dos números das cartelas (para marcar)
-      const targetMin = cardMin;
-      const targetMax = cardMax;
-      const maxAttempts = 120;
-      let attempt = 0;
-      let exprObj = null;
-      while (attempt < maxAttempts && !exprObj){
-        attempt++;
-        // escolher R: número que será marcado nas cartelas
-        const R = getRandomNumber(targetMin, targetMax);
-        // determinar quantos operandos de acordo com dificuldade
-        let numbersCount = 2;
-        let maxDistinctOps = configOps.length;
-        if (configExprDifficulty === 'easy'){
-          numbersCount = 2;
-          // only one op type allowed (per instruction): pick one op from configOps
-          maxDistinctOps = 1;
-        } else if (configExprDifficulty === 'normal'){
-          numbersCount = getRandomNumber(2,5);
-          maxDistinctOps = Math.min(3, configOps.length);
-        } else { // hard
-          numbersCount = getRandomNumber(5,10);
-          maxDistinctOps = Math.min(4, configOps.length);
-        }
-        // pick subset of operations to use (to respect "até X operações")
-        const opsToUse = sampleArray(configOps, Math.max(1, Math.min(maxDistinctOps, configOps.length)));
-        // Try to build expression
-        const built = buildExpressionForResult(R, numbersCount, opsToUse, {min:1, max: configExprNumberMax}, 100);
-        if (built && Number.isFinite(built.value) && Math.round(built.value) === R){
-          exprObj = { text: built.expr + ' = ?', result: R, rawExpr: built.exprPlain };
-          break;
-        }
-      }
-      if (!exprObj){
-        alert('Não foi possível gerar uma expressão adequada após várias tentativas. Tente ajustar as configurações (intervalo ou operações).');
-        return;
+      // Pode sortear sem cartelas
+      applyConfigIfNotApplied();
+
+      // tentar alvo único (sem repetição)
+      const maxAttempts = 200;
+      let tries=0, exprObj=null;
+      while(tries<maxAttempts){
+        tries++;
+        const target = rand(drawRange.min, drawRange.max);
+        if(usedResults.has(target)) continue;
+
+        // definir n operandos + limite de tipos de operações conforme dificuldade
+        let n=2, maxOpKinds=1;
+        if(configExprDifficulty==='easy'){ n=2; maxOpKinds=1; }
+        else if(configExprDifficulty==='normal'){ n=rand(2,5); maxOpKinds=Math.min(3, configOps.length); }
+        else { n=rand(5,10); maxOpKinds=Math.min(4, configOps.length); }
+
+        const opsToUse = sample(configOps, Math.max(1, Math.min(maxOpKinds, configOps.length)));
+
+        const node = buildASTForTarget(target, n, opsToUse, {min:1, max:configExprNumberMax}, 220);
+        if(!node) continue;
+
+        const rendered = renderExpression(node, { difficulty: configExprDifficulty });
+        const plainEval = rendered.plain; // JS-evaluable string
+        const display = (configExprDifficulty==='easy') ? `${rendered.display_no_parens} = ?` : `${rendered.display} = ?`;
+
+        const canonical = canonicalizeExpression(rendered.display);
+        if(usedExpressions.has(canonical)) continue;
+
+        // garantir que avalia exatamente ao alvo
+        let val;
+        try{ val = Math.round(Function(`return (${plainEval})`)()); } catch(e){ continue; }
+        if(val!==target) continue;
+
+        exprObj = { display, result: target, plain: plainEval, canonical };
+        break;
       }
 
-      // salvar histórico (mas não revelar o resultado visualmente ainda)
-      historyExpressions.unshift(exprObj); // adiciona no início
+      if(!exprObj){ alert('Não foi possível gerar uma expressão única com as configurações atuais. Ajuste as opções.'); return; }
+
       currentExpressionObj = exprObj;
-      drawnResults.add(exprObj.result);
+      usedResults.add(exprObj.result);
+      usedExpressions.add(exprObj.canonical);
+      historyExpressions.unshift({ display: exprObj.display, result: exprObj.result, plain: exprObj.plain, canonical: exprObj.canonical });
 
-      // atualizar UI
-      renderHistory();
-      document.getElementById('current-expression').textContent = exprObj.text;
+      // atualizar UI (resultado oculto)
+      document.getElementById('current-expression').textContent = exprObj.display;
       document.getElementById('current-number').textContent = '?';
-      // marcar cartelas automaticamente ao sortear (internamente), mas visual só quando revelar
-      markCardsForResult(exprObj.result, /*autoReveal=*/ false);
+      renderHistory();
+
+      // marcar internamente nas cartelas (sem revelar visual)
+      if(generatedCards.length) markCardsForResult(exprObj.result, false);
     }
 
-    // Construção recursiva: tentativa de construir expressão que avalie para `target`,
-    // usando `nNumbers` operandos, operações possíveis ops (['+','-','×','÷']), 
-    // numbers allowed between numberRange.min..max.
-    // Retorna {expr: string (with operators), exprPlain: string (JS-evaluable), value: number}
-    function buildExpressionForResult(target, nNumbers, ops, numberRange, maxTries){
-      // Helper: base case nNumbers==1 -> return target as literal if in range
-      // Otherwise pick op and split counts and operands and recursively build subexpressions.
-      const triesLimit = maxTries || 200;
-      let tries = 0;
+    function applyConfigIfNotApplied(){
+      // se usuário veio direto ao jogo sem clicar em salvar
+      // apenas valida superficialmente os inputs e atualiza variáveis
+      const dmin=+document.getElementById('draw-min').value||1, dmax=+document.getElementById('draw-max').value||50;
+      if(dmin<dmax) drawRange={min:dmin,max:dmax};
+      const ops=[];
+      if(document.getElementById('op-add').checked) ops.push('+');
+      if(document.getElementById('op-sub').checked) ops.push('-');
+      if(document.getElementById('op-mul').checked) ops.push('×');
+      if(document.getElementById('op-div').checked) ops.push('÷');
+      if(ops.length) configOps=ops;
+      configExprDifficulty = document.getElementById('expr-difficulty').value || configExprDifficulty;
+      configExprNumberMax = +document.getElementById('expr-interval').value || configExprNumberMax;
+    }
 
-      function attemptBuild(T, n){
-        tries++;
-        if (tries > triesLimit) return null;
-        if (n === 1){
-          if (T >= numberRange.min && T <= numberRange.max){
-            return { expr: String(T), exprPlain: String(T), value: T };
-          } else return null;
+    // AST Node helpers
+    function Num(v){ return {type:'num', value:v}; }
+    function Op(op,left,right){ return {type:'op', op,left,right}; }
+
+    function buildASTForTarget(T, n, ops, range, maxTries){
+      let tries=0;
+      function attempt(T,n){
+        tries++; if(tries>maxTries) return null;
+        if(n===1){
+          if(T>=range.min && T<=range.max) return Num(T);
+          return null;
         }
-        // pick operation to invert
-        // shuffle ops to try different operations first
-        const opsShuffled = shuffleArrayCopy(ops.slice());
-        for (let op of opsShuffled){
-          // split operand counts
-          for (let leftCount = 1; leftCount <= n-1; leftCount++){
-            const rightCount = n - leftCount;
-            // depending on op we must find leftValue and rightValue integers within numberRange possible or build subtrees that evaluate to them
-            // We'll try to find suitable leftValue/rightValue pairs (simple integers) first, then attempt recursive build.
-            // Different strategies per op:
-            if (op === '+'){
-              // T = L + R2 -> choose L in range, R2 = T-L in range
-              // try some random L
-              for (let attempt=0; attempt<10; attempt++){
-                const L = getRandomNumber(numberRange.min, numberRange.max);
-                const R2 = T - L;
-                if (R2 < numberRange.min || R2 > numberRange.max) continue;
-                const left = attemptBuild(L, leftCount);
-                if (!left) continue;
-                const right = attemptBuild(R2, rightCount);
-                if (!right) continue;
-                const expr = `(${left.expr} + ${right.expr})`;
-                const exprPlain = `(${left.exprPlain} + ${right.exprPlain})`;
-                return { expr, exprPlain, value: T };
+        const opsShuffled = shuffleCopy(ops);
+        for(const op of opsShuffled){
+          for(let leftCount=1; leftCount<=n-1; leftCount++){
+            const rightCount=n-leftCount;
+
+            if(op==='+'){
+              for(let k=0;k<10;k++){
+                const L=rand(range.min, range.max);
+                const R=T-L; if(R<range.min || R>range.max) continue;
+                const left=attempt(L,leftCount); if(!left) continue;
+                const right=attempt(R,rightCount); if(!right) continue;
+                return Op('+', left, right);
               }
-            } else if (op === '-'){
-              // T = L - R2 -> L = T + R2 ; choose R2 in range, L in range
-              for (let attempt=0; attempt<12; attempt++){
-                const R2 = getRandomNumber(numberRange.min, numberRange.max);
-                const L = T + R2;
-                if (L < numberRange.min || L > numberRange.max) continue;
-                const left = attemptBuild(L, leftCount);
-                if (!left) continue;
-                const right = attemptBuild(R2, rightCount);
-                if (!right) continue;
-                const expr = `(${left.expr} - ${right.expr})`;
-                const exprPlain = `(${left.exprPlain} - ${right.exprPlain})`;
-                return { expr, exprPlain, value: T };
+            } else if(op==='-'){
+              for(let k=0;k<10;k++){
+                const R=rand(range.min, range.max);
+                const L=T+R; if(L<range.min || L>range.max) continue;
+                const left=attempt(L,leftCount); if(!left) continue;
+                const right=attempt(R,rightCount); if(!right) continue;
+                return Op('-', left, right);
               }
-            } else if (op === '×' || op === '*'){
-              // T = L * R2 -> choose factor pairs of T
-              const divisors = getDivisors(Math.abs(T));
-              shuffleArray(divisors);
-              for (let d of divisors){
-                const L = d;
-                const R2 = Math.round(T / d);
-                if (L < numberRange.min || L > numberRange.max) continue;
-                if (R2 < numberRange.min || R2 > numberRange.max) continue;
-                const left = attemptBuild(L, leftCount);
-                if (!left) continue;
-                const right = attemptBuild(R2, rightCount);
-                if (!right) continue;
-                const expr = `(${left.expr} × ${right.expr})`;
-                const exprPlain = `(${left.exprPlain} * ${right.exprPlain})`;
-                return { expr, exprPlain, value: T };
+            } else if(op==='×'){
+              const absT = Math.abs(T);
+              if(absT===0){
+                // T=0 não costuma ocorrer pois sorteio começa em 1
+                continue;
               }
-            } else if (op === '÷' || op === '/'){
-              // T = L / R2 -> L = T * R2 -> choose R2 in range s.t. L in range
-              for (let attempt=0; attempt<12; attempt++){
-                const R2 = getRandomNumber(numberRange.min, numberRange.max);
-                const L = T * R2;
-                if (L < numberRange.min || L > numberRange.max) continue;
-                const left = attemptBuild(L, leftCount);
-                if (!left) continue;
-                const right = attemptBuild(R2, rightCount);
-                if (!right) continue;
-                const expr = `(${left.expr} ÷ ${right.expr})`;
-                const exprPlain = `(${left.exprPlain} / ${right.exprPlain})`;
-                return { expr, exprPlain, value: T };
+              const divs = getDivisors(absT); shuffle(divs);
+              for(const d of divs){
+                const L=d, R = T / d;
+                if(!Number.isInteger(R)) continue;
+                if(L<range.min || L>range.max || R<range.min || R>range.max) continue;
+                const left=attempt(L,leftCount); if(!left) continue;
+                const right=attempt(R,rightCount); if(!right) continue;
+                return Op('×', left, right);
+              }
+            } else if(op==='÷'){
+              for(let k=0;k<12;k++){
+                const R=rand(range.min, range.max);
+                const L=T*R;
+                if(L<range.min || L>range.max) continue;
+                const left=attempt(L,leftCount); if(!left) continue;
+                const right=attempt(R,rightCount); if(!right) continue;
+                return Op('÷', left, right);
               }
             }
-          } // end split leftCount
-        } // end ops loop
-        // If none succeeded, try again (randomizing)
+          }
+        }
         return null;
-      } // end attemptBuild
+      }
 
-      // try multiple times with small randomization to avoid stuck
-      for (let i=0;i<triesLimit;i++){
-        const result = attemptBuild(target, nNumbers);
-        if (result) return result;
+      // várias tentativas
+      for(let i=0;i<maxTries;i++){
+        const node = attempt(T,n);
+        if(node) return node;
       }
       return null;
     }
 
-    // ======= Funções auxiliares matemáticas =======
-    function getRandomNumber(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
-    function shuffleArray(a){
-      for (let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; }
-      return a;
-    }
-    function shuffleArrayCopy(a){
-      const c = a.slice(); shuffleArray(c); return c;
-    }
-    function sampleArray(arr, n){
-      if (n >= arr.length) return arr.slice();
-      const copy = arr.slice(); shuffleArray(copy); return copy.slice(0,n);
-    }
-    function getDivisors(n){
-      n = Math.abs(Math.floor(n));
-      const out = [];
-      if (n <= 0) return out;
-      for (let i=1;i<=n;i++){
-        if (n % i === 0) out.push(i);
+    // Renderização com parênteses mínimos + colchetes ocasionais (hard)
+    function renderExpression(node, {difficulty='normal'}={}){
+      function precOf(op){ return PREC[op]||3; }
+
+      function toStrings(n){
+        if(n.type==='num'){
+          const s=String(n.value);
+          return { display:s, plain:s, precedence:3 }; // maior prec: nunca precisa parênteses
+        }
+        const left=toStrings(n.left);
+        const right=toStrings(n.right);
+        const p=precOf(n.op);
+
+        // Quando usar parênteses?
+        const needParensLeft  = left.precedence  < p;
+        let needParensRight = right.precedence < p;
+        // casos não comutativos: a - (b ± c), a ÷ (b op c)
+        if(n.op==='-' || n.op==='÷'){
+          if(right.precedence===p){ needParensRight = true; }
+        }
+
+        const leftDisp  = needParensLeft  ? `(${left.display})` : left.display;
+        const rightDisp = needParensRight ? `(${right.display})` : right.display;
+        const leftPlain  = needParensLeft  ? `(${left.plain})` : left.plain;
+        const rightPlain = needParensRight ? `(${right.plain})` : right.plain;
+
+        const sym = n.op, jsop = (sym==='×'?'*':(sym==='÷'?'/':sym));
+        return {
+          display: `${leftDisp} ${sym} ${rightDisp}`,
+          plain:   `${leftPlain} ${jsop} ${rightPlain}`,
+          precedence: p
+        };
       }
-      return out;
+
+      // strings completas
+      let base = toStrings(node);
+
+      // Fácil: sem parênteses (garantimos 2 números e 1 operação)
+      let display_no_parens = base.display.replaceAll('(', '').replaceAll(')', '');
+
+      // Normal: já com parênteses mínimos; ocasionalmente remover parênteses triviais redundantes extras (já são mínimos).
+      let display_minimal = base.display;
+
+      // Difícil: parênteses mínimos + chance de substituir alguns por colchetes para dar aspecto de agrupamentos
+      if(difficulty==='hard'){
+        display_minimal = sprinkleBrackets(display_minimal, 0.35); // 35% dos pares
+      }
+
+      return { display: (difficulty==='easy'?display_no_parens:display_minimal), display_no_parens, plain: base.plain };
     }
 
-    // ======= Renderizar histórico =======
+    function sprinkleBrackets(s, prob){
+      // substitui alguns pares de () por [] aleatoriamente
+      const stack=[];
+      const chars=s.split('');
+      for(let i=0;i<chars.length;i++){
+        if(chars[i]==='(') stack.push(i);
+        else if(chars[i]===')'){
+          const j=stack.pop();
+          if(j!=null && Math.random()<prob){ chars[j]='['; chars[i]=']'; }
+        }
+      }
+      return chars.join('');
+    }
+
+    function canonicalizeExpression(s){
+      // versão minificada, sem espaços, parênteses normais para padronizar colchetes
+      return s.replaceAll('[','(').replaceAll(']',')').replace(/\s+/g,'').trim();
+    }
+
+    // ======= Histórico, verificador, marcação =======
     function renderHistory(){
-      const list = document.getElementById('history-list');
-      list.innerHTML = '';
-      for (let i=0;i<historyExpressions.length;i++){
-        const it = historyExpressions[i];
-        const div = document.createElement('div');
-        div.style.padding = '6px';
-        div.style.borderBottom = '1px solid #eef6ff';
-        div.style.fontWeight = '700';
-        div.textContent = `${it.text}`;
-        list.appendChild(div);
+      const list=document.getElementById('history-list'); list.innerHTML='';
+      for(const it of historyExpressions){
+        const d=document.createElement('div');
+        d.style.padding='6px'; d.style.borderBottom='1px dashed rgba(255,255,255,.18)'; d.style.fontWeight='800';
+        d.textContent = it.display;
+        list.appendChild(d);
       }
     }
 
-    // ======= Marcação de cartelas e detecção de bingo =======
-    // flag autoReveal: se true, mostra marcações e atualiza UI para mostrar células marcadas imediatamente;
-    // se false, apenas atualiza internal marks (aqui decidimos marcar imediatamente na UI quando revelar).
-    function markCardsForResult(resultNumber, autoReveal){
-      // internal mark structure: we will keep a parallel array 'marks' per card (array boolean)
-      if (!generatedCards.length) return;
-      if (!window.cardMarks) {
-        window.cardMarks = generatedCards.map(card => card.map(v => (v === 'FREE'))); // FREE já marcado
-        // note: when a card was created, we mark FREE initially
-      }
-      for (let ci=0; ci<generatedCards.length; ci++){
-        const card = generatedCards[ci];
-        const marks = window.cardMarks[ci];
-        for (let idx=0; idx<card.length; idx++){
-          if (card[idx] !== 'FREE' && Number(card[idx]) === Number(resultNumber)){
-            marks[idx] = true;
-          }
-        }
-      }
-      // se autoReveal => atualizar UI mostra as novas marcações
-      if (autoReveal) updateGameCardDOMMarks();
-    }
-
-    // Atualiza a renderização das cartelas na tela de jogo, criando DOM com eventuais marcações
-    function renderGameCards(){
-      const container = document.getElementById('cards-in-game');
-      container.innerHTML = '';
-      cardDomMap = [];
-      if (!generatedCards.length){
-        container.innerHTML = '<div style="color:#666">Nenhuma cartela gerada. Vá em "Gerar cartelas" para criar as cartelas antes de iniciar o jogo.</div>';
-        return;
-      }
-      // ensure marks exists
-      if (!window.cardMarks) {
-        window.cardMarks = generatedCards.map(card => card.map(v => (v === 'FREE')));
-      }
-      for (let ci=0; ci<generatedCards.length; ci++){
-        const card = generatedCards[ci];
-        const cardDiv = document.createElement('div');
-        cardDiv.className = 'cartela';
-        const title = document.createElement('div'); title.className = 'cartela-title'; title.textContent = `Cartela ${ci+1}`;
-        cardDiv.appendChild(title);
-        const grid = document.createElement('div');
-        grid.style.display = 'grid';
-        grid.style.gridTemplateColumns = `repeat(${generatedCardSize}, 1fr)`;
-        grid.style.gap = '6px';
-        const marks = window.cardMarks[ci];
-        const cellEls = [];
-        for (let idx=0; idx<card.length; idx++){
-          const val = card[idx];
-          const c = document.createElement('div'); c.className = 'cell';
-          c.textContent = val === 'FREE' ? 'FREE' : String(val);
-          if (marks[idx]) c.classList.add('marked');
-          // allow teacher to manually toggle a mark (optional)
-          c.addEventListener('click', ()=>{
-            marks[idx] = !marks[idx];
-            c.classList.toggle('marked', marks[idx]);
-            checkBingoForCard(ci);
-          });
-          grid.appendChild(c);
-          cellEls.push(c);
-        }
-        cardDiv.appendChild(grid);
-        // placeholder for bingo notification per card
-        const bingoNote = document.createElement('div'); bingoNote.style.marginTop='8px'; bingoNote.style.fontWeight='700';
-        bingoNote.style.color='#177d3a';
-        bingoNote.textContent = '';
-        cardDiv.appendChild(bingoNote);
-
-        container.appendChild(cardDiv);
-        cardDomMap.push({gridEl: grid, cellEls, bingoNote});
-        // initial bingo check
-        checkBingoForCard(ci);
+    function verifyNumber(){
+      const inp=document.getElementById('verify-number');
+      const out=document.getElementById('verify-result');
+      out.innerHTML='';
+      if(!inp.value){ out.textContent='Digite um número para verificar.'; return; }
+      const n = +inp.value;
+      if(usedResults.has(n)){
+        const found = historyExpressions.find(h=>h.result===n);
+        out.innerHTML=`<div style="color:#86efac;font-weight:900">✓ Número sorteado.</div>
+                       <div style="margin-top:6px">Expressão: ${found ? found.display.replace(' = ?',''):'—'}</div>`;
+      }else{
+        out.innerHTML=`<div style="color:#fca5a5;font-weight:900">✗ Número NÃO foi sorteado.</div>`;
       }
     }
 
-    function updateGameCardDOMMarks(){
-      for (let ci=0; ci<generatedCards.length; ci++){
-        const marks = window.cardMarks[ci];
-        const dom = cardDomMap[ci];
-        if (!dom) continue;
-        for (let i=0;i<dom.cellEls.length;i++){
-          dom.cellEls[i].classList.toggle('marked', !!marks[i]);
-        }
-        checkBingoForCard(ci);
-      }
-    }
-
-    function checkBingoForCard(ci){
-      const marks = window.cardMarks[ci];
-      const size = generatedCardSize;
-      // rows
-      let bingo = false;
-      // rows
-      for (let r=0;r<size;r++){
-        let ok = true;
-        for (let c=0;c<size;c++){
-          if (!marks[r*size + c]) { ok = false; break; }
-        }
-        if (ok) bingo = true;
-      }
-      // cols
-      for (let c=0;c<size;c++){
-        let ok = true;
-        for (let r=0;r<size;r++){
-          if (!marks[r*size + c]) { ok = false; break; }
-        }
-        if (ok) bingo = true;
-      }
-      // diagonals (main and anti)
-      let ok = true;
-      for (let i=0;i<size;i++) if (!marks[i*size + i]) { ok = false; break; }
-      if (ok) bingo = true;
-      ok = true;
-      for (let i=0;i<size;i++) if (!marks[i*size + (size-1 - i)]) { ok = false; break; }
-      if (ok) bingo = true;
-
-      // update UI
-      const dom = cardDomMap[ci];
-      if (dom){
-        if (bingo){
-          dom.bingoNote.textContent = 'BINGO!';
-          dom.bingoNote.style.color = '#0b6620';
-          // show winner in winner box
-          showWinner(ci);
-        } else {
-          dom.bingoNote.textContent = '';
-        }
-      }
-      return bingo;
-    }
-
-    function showWinner(ci){
-      const box = document.getElementById('winner-box');
-      box.style.display = 'block';
-      box.innerHTML = `<strong>Cartela ${ci+1} fez BINGO!</strong><div style="margin-top:6px">Parabéns! Você pode encerrar a rodada ou continuar.</div>`;
-      box.className = 'notify success';
-    }
-
-    // ======= Revelar resultado =======
     function revealResult(){
-      if (!currentExpressionObj){
-        alert('Nenhuma expressão atual para revelar. Sorteie antes de revelar.');
-        return;
-      }
+      if(!currentExpressionObj){ alert('Nenhuma expressão atual. Faça um sorteio.'); return; }
       document.getElementById('current-number').textContent = String(currentExpressionObj.result);
-      // atualizar marcações visuais
       updateGameCardDOMMarks();
     }
 
-    // ======= Verificador de números sorteados =======
-    function verifyNumber(){
-      const input = document.getElementById('verify-number');
-      const out = document.getElementById('verify-result');
-      out.innerHTML = '';
-      if (!input.value){
-        out.textContent = 'Digite um número para verificar.';
-        return;
-      }
-      const n = Number(input.value);
-      if (drawnResults.has(n)){
-        // encontra expressão que produziu esse número
-        const found = historyExpressions.find(h => h.result === n);
-        out.innerHTML = `<div style="color:#0b6620;font-weight:800">✓ Número sorteado.</div>
-                         <div style="margin-top:6px">Expressão: ${found ? found.text.replace(' = ?', '') : '—'}</div>`;
-      } else {
-        out.innerHTML = `<div style="color:#8a2b2b;font-weight:800">✗ Número NÃO foi sorteado.</div>`;
-      }
-    }
-
-    // ======= Reset/Reiniciar jogo =======
     function resetGame(){
-      if (!confirm('Deseja reiniciar o jogo? Histórico e marcações serão limpos (mantendo as cartelas geradas).')) return;
-      historyExpressions = [];
-      drawnResults = new Set();
-      currentExpressionObj = null;
-      document.getElementById('current-expression').textContent = 'Nenhuma expressão sorteada';
-      document.getElementById('current-number').textContent = '?';
-      document.getElementById('history-list').innerHTML = '';
-      document.getElementById('verify-number').value = '';
-      document.getElementById('verify-result').innerHTML = '';
-      // reset marks but keep FREE marked
-      if (generatedCards.length){
-        window.cardMarks = generatedCards.map(card => card.map(v => (v === 'FREE')));
+      if(!confirm('Reiniciar o sorteio? (mantém as cartelas geradas)')) return;
+      historyExpressions=[]; usedResults=new Set(); usedExpressions=new Set();
+      currentExpressionObj=null;
+      document.getElementById('current-expression').textContent='Nenhuma expressão sorteada';
+      document.getElementById('current-number').textContent='?';
+      document.getElementById('history-list').innerHTML='';
+      document.getElementById('verify-number').value='';
+      document.getElementById('verify-result').innerHTML='';
+      if(generatedCards.length){
+        window.cardMarks = generatedCards.map(card => card.map(v => v==='FREE'));
         renderGameCards();
       }
-      document.getElementById('winner-box').style.display = 'none';
-      document.getElementById('winner-box').innerHTML = '';
+      const box=document.getElementById('winner-box');
+      box.style.display='none'; box.innerHTML='';
     }
 
-    // ======= Utilitários: construção de expressões com parênteses/colchetes (melhoria visual) =======
-    // Observação: nossa construção recursiva já produz expressões com parênteses.
-    // Para modos "hard" podemos ocasionalmente substituir () por [] para variar.
-    // Já feito naturalmente quando mostramos expr string.
+    // ======= Cartelas no jogo =======
+    function renderGameCards(){
+      const container=document.getElementById('cards-in-game');
+      container.innerHTML='';
+      cardDomMap=[];
+      if(!generatedCards.length){
+        container.innerHTML='<div class="muted">Nenhuma cartela carregada (opcional). Você pode jogar apenas com o sorteio.</div>';
+        return;
+      }
+      if(!window.cardMarks) window.cardMarks = generatedCards.map(card=>card.map(v=>v==='FREE'));
+      for(let ci=0;ci<generatedCards.length;ci++){
+        const card=generatedCards[ci];
+        const cardDiv=document.createElement('div'); cardDiv.className='cartela';
+        const title=document.createElement('div'); title.className='cartela-title'; title.textContent=`Cartela ${ci+1}`;
+        cardDiv.appendChild(title);
+        const grid=document.createElement('div');
+        grid.style.display='grid'; grid.style.gridTemplateColumns=`repeat(${generatedCardSize},1fr)`; grid.style.gap='6px';
+        const marks=window.cardMarks[ci];
+        const cellEls=[];
+        for(let idx=0;idx<card.length;idx++){
+          const val=card[idx];
+          const c=document.createElement('div'); c.className='cell';
+          c.textContent=(val==='FREE'?'FREE':String(val));
+          if(marks[idx]) c.classList.add('marked');
+          c.addEventListener('click', ()=>{ // alternância manual
+            marks[idx]=!marks[idx];
+            c.classList.toggle('marked', marks[idx]);
+            checkBingoForCard(ci);
+          });
+          grid.appendChild(c); cellEls.push(c);
+        }
+        cardDiv.appendChild(grid);
+        const bingoNote=document.createElement('div'); bingoNote.style.marginTop='8px'; bingoNote.style.fontWeight='900'; bingoNote.style.color='#86efac';
+        bingoNote.textContent='';
+        cardDiv.appendChild(bingoNote);
+
+        container.appendChild(cardDiv);
+        cardDomMap.push({cellEls, bingoNote});
+        checkBingoForCard(ci);
+      }
+    }
+
+    function markCardsForResult(n, autoReveal){
+      if(!generatedCards.length) return;
+      if(!window.cardMarks) window.cardMarks = generatedCards.map(card=>card.map(v=>v==='FREE'));
+      for(let ci=0;ci<generatedCards.length;ci++){
+        const card=generatedCards[ci], marks=window.cardMarks[ci];
+        for(let i=0;i<card.length;i++) if(card[i]!=='FREE' && +card[i]===+n) marks[i]=true;
+      }
+      if(autoReveal) updateGameCardDOMMarks();
+    }
+    function updateGameCardDOMMarks(){
+      if(!generatedCards.length) return;
+      for(let ci=0;ci<generatedCards.length;ci++){
+        const marks=window.cardMarks[ci], dom=cardDomMap[ci]; if(!dom) continue;
+        for(let i=0;i<dom.cellEls.length;i++) dom.cellEls[i].classList.toggle('marked', !!marks[i]);
+        checkBingoForCard(ci);
+      }
+    }
+    function checkBingoForCard(ci){
+      if(!generatedCards.length) return false;
+      const marks=window.cardMarks[ci], size=generatedCardSize;
+      let bingo=false;
+      // rows
+      for(let r=0;r<size;r++){
+        let ok=true; for(let c=0;c<size;c++){ if(!marks[r*size+c]){ok=false;break;} }
+        if(ok) bingo=true;
+      }
+      // cols
+      for(let c=0;c<size;c++){
+        let ok=true; for(let r=0;r<size;r++){ if(!marks[r*size+c]){ok=false;break;} }
+        if(ok) bingo=true;
+      }
+      // diagonais
+      let ok=true; for(let i=0;i<size;i++) if(!marks[i*size+i]) {ok=false;break;}
+      if(ok) bingo=true;
+      ok=true; for(let i=0;i<size;i++) if(!marks[i*size+(size-1-i)]) {ok=false;break;}
+      if(ok) bingo=true;
+
+      const dom=cardDomMap[ci];
+      if(dom){
+        if(bingo){
+          dom.bingoNote.textContent='BINGO!';
+          showWinner(ci);
+        }else dom.bingoNote.textContent='';
+      }
+      return bingo;
+    }
+    function showWinner(ci){
+      const box=document.getElementById('winner-box');
+      box.style.display='block';
+      box.innerHTML=`<strong>Cartela ${ci+1} fez BINGO!</strong><div style="margin-top:6px">Parabéns! Você pode encerrar a rodada ou continuar.</div>`;
+    }
+
+    // ======= Utilitários =======
+    function rand(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+    function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+    function shuffleCopy(a){ const c=a.slice(); return shuffle(c); }
+    function sample(arr,n){ if(n>=arr.length) return arr.slice(); const c=arr.slice(); shuffle(c); return c.slice(0,n); }
+    function getDivisors(n){ n=Math.abs(Math.floor(n)); const out=[]; if(n<=0) return out; for(let i=1;i<=n;i++) if(n%i===0) out.push(i); return out; }
 
     // ======= Inicialização =======
-    refreshFreeOption();
-    updatePreview();
-
-    // garantir que ao abrir jogo, se não houver cartelas, botão vá avisar
-    document.getElementById('btn-go-game').addEventListener('click', () => {
-      if (!generatedCards.length){
-        if (!confirm('Nenhuma cartela gerada. Deseja continuar sem cartelas? (Você pode gerar cartelas antes de iniciar o jogo)')) {
-          showScreen('generate'); return;
-        }
-      }
-      showScreen('game');
-    });
-
-    // ======= Observações e segurança =======
-    // A geração de expressões é feita por construção reversa para assegurar que o resultado seja exatamente o número sorteado (inteiro).
-    // Em casos extremos (muitas restrições) pode não encontrar expressão em número limitado de tentativas — nesse caso o drawExpression falha e avisa.
-
-    // ======= Funções utilitárias repetidas (shuffle etc) definidas novamente por segurança =======
-    function shuffleArray(a){ for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
-    function shuffleArrayCopy(a){ const c=a.slice(); shuffleArray(c); return c; }
-    function sampleArray(arr,n){ if (n>=arr.length) return arr.slice(); const c=arr.slice(); shuffleArray(c); return c.slice(0,n); }
-    function getRandomNumber(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
-    function getDivisors(n){ n=Math.abs(Math.floor(n)); const out=[]; if (n<=0) return out; for (let i=1;i<=n;i++) if (n%i===0) out.push(i); return out; }
-
+    function refreshFreeOption(){ /* redefinida acima */ }
+    function updatePreview(){ /* redefinida acima */ }
+    // chamada inicial
+    (function(){
+      refreshFreeOption();
+      updatePreview();
+    })();
   </script>
 </body>
 </html>
-
