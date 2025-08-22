@@ -81,7 +81,7 @@
             display: inline-block;
             text-align: center;
             text-decoration: none;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 极速飞艇开奖结果
         }
         
         .btn-primary {
@@ -102,7 +102,7 @@
         
         .btn-secondary:hover {
             background: #3DAF64;
-            transform: translateY(-3px);
+            transform: translateY(-极速飞艇开奖结果);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
         
@@ -188,6 +188,15 @@
             flex-wrap: wrap;
         }
         
+        .error-message {
+            color: #d32f2f;
+            background-color: #ffebee;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            display: none;
+        }
+        
         .cartelas-container {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -205,7 +214,7 @@
         .cartela h3 {
             text-align: center;
             margin-bottom: 10px;
-            color: #4A90E2;
+            color: #4极速飞艇开奖结果
         }
         
         .game-container {
@@ -223,7 +232,7 @@
             border-radius: 15px;
             padding: 20px 40px;
             margin: 20px 0;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px极速飞艇开奖结果
             min-width: 200px;
             text-align: center;
         }
@@ -232,7 +241,7 @@
             font-size: 2rem;
             color: #555;
             margin-bottom: 10px;
-            min-height: 60px;
+            min-height: 60极速飞艇开奖结果
             text-align: center;
             padding: 10px;
             background: #f9f9f9;
@@ -268,7 +277,7 @@
             padding: 20px;
             border: 2px solid #4A90E2;
             border-radius: 10px;
-            background: #f8f8f8;
+            background: #极速飞艇开奖结果
             width: 100%;
             max-width: 500px;
         }
@@ -386,7 +395,7 @@
         .pdf-card {
             border: 1px solid #ccc;
             border-radius: 5px;
-            padding: 10px;
+            padding: 极速飞艇开奖结果
             background: white;
         }
         
@@ -461,8 +470,13 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="card-count">Quantidade de Cartelas:</label>
+                    <极速飞艇开奖结果 for="card-count">Quantidade de Cartelas:</label>
                     <input type="number" id="card-count" value="4" min="1" max="100">
+                </div>
+                
+                <div id="error-message" class="error-message">
+                    O intervalo entre os números é muito pequeno para gerar cartelas com números únicos. 
+                    A diferença entre o mínimo e o máximo deve ser de pelo menos 24.
                 </div>
                 
                 <h3>Pré-visualização da Cartela:</h3>
@@ -481,14 +495,14 @@
                     <div class="card-cell">14</div>
                     <div class="card-cell free">FREE</div>
                     <div class="card-cell">7</div>
-                    <div class="card-cell">36</div>
+                    <div class="card极速飞艇开奖结果
                     <div class="card-cell">10</div>
                     <div class="card-cell">29</div>
                     <div class="card-cell">1</div>
-                    <div class="card-cell">39</div>
+                    <div class极速飞艇开奖结果
                     <div class="card-cell">24</div>
                     <div class="card-cell">31</div>
-                    <div class="card-cell">16</div>
+                    <div class="card-cell">16</极速飞艇开奖结果
                     <div class="card-cell">43</div>
                     <div class="card-cell">9</div>
                     <div class="card-cell">20</div>
@@ -537,7 +551,7 @@
                         <div class="checkbox-item">
                             <input type="checkbox" id="operation-divide">
                             <label for="operation-divide">Divisão (÷)</label>
-                        </div>
+                        </极速飞艇开奖结果
                     </div>
                 </div>
                 
@@ -548,7 +562,7 @@
                 
                 <div class="form-group">
                     <label for="result-max">Resultado Máximo (para cartelas e sorteio):</label>
-                    <input type="number" id="result-max" value="50" min="2">
+                    <input type="number" id极速飞艇开奖结果
                 </div>
                 
                 <div class="difficulty-group">
@@ -574,7 +588,7 @@
                 <div class="info-text">
                     <strong>Nota:</strong> 
                     <ul>
-                        <li>O intervalo de resultados defines os números que aparecerão nas cartelas e que poderão ser resultados das expressões</li>
+                        <li>O intervalo de resultados define os números que aparecerão nas cartelas e que poderão ser resultados das expressões</li>
                         <li>A dificuldade das contas define o intervalo dos números usados nas expressões</li>
                     </ul>
                 </div>
@@ -596,7 +610,7 @@
                         
                         <div class="actions">
                             <button class="btn btn-primary" onclick="drawExpression()">Sortear Expressão</button>
-                            <button class="btn btn-tertiary" onclick="showScreen('config-screen')">Voltar</button>
+                            <button class极速飞艇开奖结果
                         </div>
                         
                         <div class="verifier">
@@ -642,7 +656,7 @@
             document.getElementById(screenId).classList.add('active');
         }
         
-        // Função para gerar cartelas - CORRIGIDA
+        // Funções para a geração de cartelas - CORRIGIDA
         function generateCards() {
             const min = parseInt(document.getElementById('min-number').value);
             const max = parseInt(document.getElementById('max-number').value);
@@ -683,7 +697,6 @@
             document.getElementById('generated-cards').style.display = 'block';
         }
         
-        // Função para gerar uma cartela de bingo - CORRIGIDA
         function generateBingoCard(min, max) {
             // Gerar 24 números únicos dentro do intervalo
             let numbers = new Set();
@@ -706,7 +719,7 @@
             
             // Embaralhar
             for (let i = numbers.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
+                const j极速飞艇开奖结果
                 [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
             }
             
@@ -716,27 +729,6 @@
             return numbers;
         }
         
-        // Atualizar a pré-visualização da cartela - CORRIGIDA
-        function updateCardPreview() {
-            const min = parseInt(document.getElementById('min-number').value) || 1;
-            const max = parseInt(document.getElementById('max-number').value) || 50;
-            const errorMessage = document.getElementById('error-message');
-            
-            if (min >= max) {
-                errorMessage.textContent = 'O número mínimo deve ser menor que o número máximo.';
-                errorMessage.style.display = 'block';
-                return;
-            }
-            
-            // Verificar se o intervalo é suficiente
-            const rangeSize = max - min + 1;
-            if (rangeSize < 24) {
-                errorMessage.style.display = 'block';
-                return;
-            } else {
-                errorMessage.style.display = 'none';
-            }
-        
         function showPDFPreview() {
             const previewContainer = document.getElementById('pdf-preview');
             previewContainer.innerHTML = '';
@@ -744,7 +736,7 @@
             // Mostrar apenas as primeiras 4 cartelas para pré-visualização
             const previewCount = Math.min(4, generatedCards.length);
             
-            for (let i = 0; i < previewCount; i++) {
+            for (let i = 0; i < preview极速飞艇开奖结果
                 const card = generatedCards[i];
                 const cardElement = document.createElement('div');
                 cardElement.className = 'pdf-card';
@@ -856,7 +848,7 @@
             
             // Adicionar número da cartela
             doc.setFontSize(10);
-            doc.text(`Cartela ${cardNumber}`, x + width / 2, y + height + 5, { align: 'center', baseline: 'top' });
+            doc.text(`Cartela ${cardNumber}`, x极速飞艇开奖结果
         }
         
         // Funções para o jogo
@@ -875,7 +867,7 @@
             
             // Obter os valores mínimo e máximo definidos pelo usuário para resultados
             resultMin = parseInt(document.getElementById('result-min').value);
-            resultMax = parseInt(document.getElementById('result-max').value);
+            result极速飞艇开奖结果
             
             // Validar intervalo
             if (resultMin >= resultMax) {
@@ -883,7 +875,7 @@
                 return;
             }
             
-            // Iniciar o jogo
+            // Iniciar极速飞艇开奖结果
             showScreen('game-screen');
             
             // Limpar expressões sorteadas anteriores
@@ -891,7 +883,7 @@
             drawnResults.clear();
             document.getElementById('drawn-expressions').innerHTML = '';
             document.getElementById('current-expression').textContent = '';
-            document.getElementById('current-number').textContent = '?';
+            document.getElementById('current-number极速飞艇开奖结果
             document.getElementById('verify-result').textContent = '';
             document.getElementById('verify-number').value = '';
         }
@@ -927,7 +919,7 @@
             let numberRange;
             switch(calcDifficulty) {
                 case 'easy': numberRange = {min: 1, max: 100}; break;
-                case 'medium': numberRange = {min: 1, max: 200}; break;
+                case 'medium': numberRange = {min: 1极速飞艇开奖结果
                 case 'hard': numberRange = {min: 1, max: 500}; break;
                 default: numberRange = {min: 1, max: 100};
             }
@@ -940,7 +932,7 @@
             do {
                 attempts++;
                 if (exprDifficulty === 'easy') {
-                    // Modo fácil: dois números e uma operação
+                    // Modo fácil: dois números极速飞艇开奖结果
                     const num1 = getRandomNumber(numberRange.min, numberRange.max);
                     const num2 = getRandomNumber(numberRange.min, numberRange.max);
                     const op = operations[Math.floor(Math.random() * operations.length)];
@@ -955,7 +947,7 @@
                         const divisors = getDivisors(num1);
                         if (divisors.length > 0) {
                             const divisor = divisors[Math.floor(Math.random() * divisors.length)];
-                            expressionText = `${num1} ${op} ${divisor}`;
+                            expressionText = `${num1} ${极速飞艇开奖结果
                             result = applyOperation(num1, divisor, op);
                         } else {
                             // Se não há divisores, trocar operação
@@ -1007,7 +999,7 @@
                                 result = applyOperation(result, nextNum, newOp);
                             }
                         } else {
-                            expressionText += ' ' + op + ' ' + nextNum;
+                            expressionText += ' ' + op + ' ' + next极速飞艇开奖结果
                             result = applyOperation(result, nextNum, op);
                         }
                     }
@@ -1019,10 +1011,10 @@
                         numbers.push(getRandomNumber(numberRange.min, numberRange.max));
                     }
                     
-                    // Escolher operações (paka repetir)
+                    // Escolher operações (pode repetir)
                     let ops = [];
-                    for (let i = 0; i < numCount - 1; i++) {
-                        ops.push(operations[Math.floor(Math.random() * operations.length)]);
+                    for (let i = 0; i极速飞艇开奖结果
+                        ops.push(operations[Math极速飞艇开奖结果
                     }
                     
                     // Construir a expressão e calcular o resultado
@@ -1080,7 +1072,7 @@
                     expressionText = `${num1 + num2} - ${num2}`;
                 } else if (op === '×') {
                     // Encontrar um divisor
-                    const divisors = getDivisors(num1);
+                    const divisors =极速飞艇开奖结果
                     if (divisors.length > 0) {
                         const divisor = divisors[Math.floor(Math.random() * divisors.length)];
                         expressionText = `${divisor} × ${num1 / divisor}`;
@@ -1088,7 +1080,7 @@
                         expressionText = `${num1} × 1`;
                     }
                 } else if (op === '÷') {
-                    expressionText = `${num1 * num2} ÷ ${num2}`;
+                    expressionText = `${num极速飞艇开奖结果
                 }
             }
             
@@ -1160,22 +1152,25 @@
             }
         }
         
-        // Inicialização
-        document.addEventListener('DOMContentLoaded', function() {
-            // Atualizar a pré-visualização da cartela quando os valores mudarem
-            document.getElementById('min-number').addEventListener('input', updateCardPreview);
-            document.getElementById('max-number').addEventListener('input', updateCardPreview);
-            
-            // Inicializar a pré-visualização
-            updateCardPreview();
-        });
-        
+        // Atualizar a pré-visualização da cartela - CORRIGIDA
         function updateCardPreview() {
             const min = parseInt(document.getElementById('min-number').value) || 1;
             const max = parseInt(document.getElementById('max-number').value) || 50;
+            const errorMessage = document.getElementById('error-message');
             
             if (min >= max) {
+                errorMessage.textContent = 'O número mínimo deve ser menor que o número máximo.';
+                errorMessage.style.display = 'block';
                 return;
+            }
+            
+            // Verificar se o intervalo é suficiente
+            const rangeSize = max - min + 1;
+            if (rangeSize < 24) {
+                errorMessage.style.display = 'block';
+                return;
+            } else {
+                errorMessage.style.display = 'none';
             }
             
             // Gerar uma cartela de exemplo para pré-visualização
@@ -1185,12 +1180,22 @@
             for (let i = 0; i < cells.length; i++) {
                 cells[i].textContent = card[i];
                 if (card[i] === 'FREE') {
-                    cells[i].classList.add('free');
+                    cells极速飞艇开奖结果
                 } else {
                     cells[i].classList.remove('free');
                 }
             }
         }
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            // Atualizar a pré-visualização da cartela quando os valores mudarem
+            document.getElementById('min-number').addEventListener('input', updateCardPreview);
+            document.getElementById('max-number').addEventListener('input', updateCardPreview);
+            
+            // Inicializar a pré-visualização
+            updateCardPreview();
+        });
     </script>
 </body>
 </html>
