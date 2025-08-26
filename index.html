@@ -13,6 +13,8 @@
   --text:#e7ecf2; --muted:#a8b3c5;
   --primaryA:#8a63ff; --primaryB:#19d3da; --success:#2ed573; --danger:#ff6b81;
   --shadow: 0 10px 30px rgba(0,0,0,.35);
+  --marked-bg: linear-gradient(135deg, rgba(46,213,115,0.18), rgba(25,211,120,0.12));
+  --marked-color: #062017;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:
@@ -55,7 +57,8 @@ input[type=number], select, input[type=text]{width:100%;padding:10px;border-radi
 .ticket-grid[data-size="3"]{grid-template-columns:repeat(3,1fr)}
 .ticket-grid[data-size="5"]{grid-template-columns:repeat(5,1fr)}
 .ticket-grid[data-size="7"]{grid-template-columns:repeat(7,1fr)}
-.cell{border-radius:8px;padding:6px;text-align:center;font-weight:900;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.04);font-size:1.05rem}
+.cell{border-radius:8px;padding:6px;text-align:center;font-weight:900;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.04);font-size:1.05rem;transition:transform .08s, background .12s, color .12s}
+.cell.marked{background: var(--marked-bg); color: var(--marked-color); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(46,213,115,.08); }
 .alert{padding:8px;border-radius:8px;margin-top:10px}
 .alert.warn{background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.22);color:#ffe39b}
 .alert.danger{background:rgba(255,109,120,.06);border:1px solid rgba(255,109,120,.22);color:#ffc2c7}
@@ -240,9 +243,18 @@ footer{color:var(--muted);text-align:center;margin:18px 0;font-size:.9rem}
         <div id="check-result" class="alert" style="display:none;margin-top:12px"></div>
 
         <div class="sep"></div>
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <strong>Exibir cartelas</strong>
-          <label class="switch"><input type="checkbox" id="toggle-cards"/><span class="toggle"><span class="dot"></span></span></label>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <strong>Exibir cartelas</strong>
+            <label class="switch"><input type="checkbox" id="toggle-cards"/><span class="toggle"><span class="dot"></span></span></label>
+          </div>
+
+          <!-- NOVA OPÇÃO: marcar números sorteados -->
+          <div style="display:flex;align-items:center;gap:10px">
+            <strong>Marcar sorteados</strong>
+            <label class="switch"><input type="checkbox" id="toggle-marked"/><span class="toggle"><span class="dot"></span></span></label>
+          </div>
         </div>
 
         <div id="cards-on-draw" class="cards-wrap" style="margin-top:12px;display:none"></div>
@@ -298,11 +310,10 @@ document.getElementById("btn-generate").addEventListener("click", ()=>{
   cardSize = size;
   generatedCards = [];
   for(let i=0;i<count;i++) generatedCards.push(generateUniqueCard(min, max, size));
-  renderCardsPreview(elCardsPreview, generatedCards, size);
+  renderCardsPreview(elCardsPreview, generatedCards, size, false); // preview without marks
   elGeneratedInfo.style.display = "flex";
   elGeneratedInfo.textContent = `Geradas ${count} cartelas (${size}×${size}) — números ${min} a ${max}.`;
 
-  // auto-save small
   saveStateLocal(false);
 });
 
@@ -319,7 +330,9 @@ function generateUniqueCard(min, max, size){
   return pool.slice(0,total);
 }
 
-function renderCardsPreview(container, cards, size){
+/* renderCardsPreview(container, cards, size, markNumbers)
+   markNumbers -> if true will highlight numbers present in resultsSet */
+function renderCardsPreview(container, cards, size, markNumbers=false){
   container.innerHTML = "";
   cards.forEach((nums, idx)=>{
     const card = document.createElement("div"); card.className = "card";
@@ -329,6 +342,9 @@ function renderCardsPreview(container, cards, size){
     nums.forEach(n=>{
       const cell = document.createElement("div"); cell.className = "cell"; cell.textContent = n;
       cell.style.fontSize = "1.1rem";
+      if(markNumbers && resultsSet.has(n)){
+        cell.classList.add('marked');
+      }
       grid.appendChild(cell);
     });
     card.appendChild(title); card.appendChild(grid); container.appendChild(card);
@@ -396,7 +412,6 @@ function drawCardPDF(doc, nums, x, y, w, h, size, cardNum){
       doc.text(String(n), cx + cellSize/2, cy + cellSize/2 + fontSize*0.06, {align:'center', baseline:'middle'});
     }
   }
-  // no footer note (removed per request)
 }
 
 /* -------------------------
@@ -441,6 +456,8 @@ function updateCountdown(){ const m=Math.floor(timeLeft/60), s=timeLeft%60; elCo
 function clearDraws(){
   expressionsCanon = new Set(); resultsSet = new Set(); resultToDisplay = {};
   elHistory.innerHTML = ""; elCurrentExpression.textContent = "Pronto para sortear…"; elDrawAlert.style.display = "none";
+  // refresh marks on visible cards
+  updateCardMarks();
   saveStateLocal(false);
 }
 
@@ -458,9 +475,8 @@ function drawExpression(){
     tries++;
     const candidate = generateExpressionWithPlain(difficulty, exprRange);
     if(!candidate) continue;
-    // candidate.result must be an integer (no decimals), not NaN
     if(candidate.result === undefined || candidate.result === null || !Number.isFinite(candidate.result)) continue;
-    if(!Number.isInteger(candidate.result)) continue; // REJECT decimal results
+    if(!Number.isInteger(candidate.result)) continue; // reject decimals
     if(candidate.result < drawMin || candidate.result > drawMax) continue;
     const canon = canonicalize(candidate.plainEvalExpr);
     if(expressionsCanon.has(canon)) continue;
@@ -478,14 +494,13 @@ function drawExpression(){
   const item = document.createElement("div"); item.className = "item"; item.textContent = `${chosen.displayExpr}  =  (?)`;
   elHistory.prepend(item);
 
-  // auto-save small
+  // update card marks if visible and toggle enabled
+  updateCardMarks();
+
   saveStateLocal(false);
 }
 
-/* Gera expressão com duas representações:
-   - plainEvalExpr (JS-evaluable) using * and /
-   - displayExpr (user friendly) using × and ÷
-   - result numeric (not rounded) */
+/* generateExpressionWithPlain similar to earlier version */
 function generateExpressionWithPlain(level, range){
   const ops = getSelectedOps(); const opsCount = Math.max(ops.length, 1);
   let numsCount = 2, maxOps = 1;
@@ -496,16 +511,12 @@ function generateExpressionWithPlain(level, range){
   const useOps = sampleOps(ops, maxOps);
   const numbers = Array.from({length: numsCount}, ()=> randInt(1, range));
 
-  // build tokens left-to-right (plain tokens use * and /) but we will reject if final result not integer
   const tokens = [ String(numbers[0]) ];
   for(let i=1;i<numsCount;i++){
     let op = useOps[randInt(0, useOps.length-1)];
     let n = numbers[i];
-    // if op is '/' try to increase chance of integer result by selecting divisor of a constructed left value,
-    // but since left might be an expression, we can't guarantee — so we'll rely on rejection when result not integer.
     if(op === "/"){
       if(n === 0) n = 1;
-      // occasional attempt: if previous token is a plain integer, set n to a divisor of it
       const prevToken = tokens[tokens.length-1];
       const prevNum = Number(prevToken);
       if(Number.isInteger(prevNum) && prevNum > 0 && Math.random() < 0.45){
@@ -516,7 +527,6 @@ function generateExpressionWithPlain(level, range){
     tokens.push(op, String(n));
   }
 
-  // grouping (hard and normal have some grouping but limited)
   let groupedTokens = tokens.slice();
   if(level === "hard"){
     if(Math.random() < 0.28) groupedTokens = applyGrouping(groupedTokens);
@@ -525,49 +535,20 @@ function generateExpressionWithPlain(level, range){
   }
 
   const plainEvalExpr = groupedTokens.join(" ");
-  // display expression with nicer symbols
   let displayExpr = plainEvalExpr.replace(/\*/g, " × ").replace(/\//g, " ÷ ");
   displayExpr = displayExpr.replace(/\s+/g,' ').trim();
 
-  // evaluate exactly
   let result = NaN;
   try{
     result = Function(`"use strict"; return (${plainEvalExpr.replace(/\[/g,'(').replace(/\]/g,')')});`)();
   }catch(e){ result = NaN; }
   if(!Number.isFinite(result)) return null;
-  // keep result as-is (no rounding); caller will enforce integer requirement
   return { displayExpr, plainEvalExpr, result };
 }
 
-/* Utils para operações / agrupamentos */
-function getSelectedOps(){
-  const out = [];
-  if(document.getElementById("op-add").checked) out.push("+");
-  if(document.getElementById("op-sub").checked) out.push("-");
-  if(document.getElementById("op-mul").checked) out.push("*");
-  if(document.getElementById("op-div").checked) out.push("/");
-  return out;
-}
-function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
-function sampleOps(ops, maxCount){ if(!ops || ops.length===0) return ["+"]; if(maxCount>=ops.length) return ops.slice(); const arr=ops.slice(); for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];} return arr.slice(0,maxCount); }
-function divisors(n){ n = Math.abs(Math.floor(n)); const out=[]; for(let i=1;i<=Math.sqrt(n);i++){ if(n%i===0){ out.push(i); if(Math.floor(n/i)!==i) out.push(Math.floor(n/i)); } } return out; }
-
-function applyGrouping(tokens){
-  let out = tokens.slice();
-  out = applyGroupingOnce(out, Math.random()<0.5 ? "()" : "[]");
-  if(Math.random() < 0.22) out = applyGroupingOnce(out, Math.random()<0.5 ? "()" : "[]");
-  return out;
-}
-function applyGroupingOnce(tokens, bracket="()"){
-  if(tokens.length < 5) return tokens;
-  const numIdxs = [];
-  for(let i=0;i<tokens.length;i+=2) numIdxs.push(i);
-  if(numIdxs.length < 2) return tokens;
-  const i1 = numIdxs[randInt(0, numIdxs.length-2)];
-  const i2 = numIdxs[randInt(i1+1, numIdxs.length-1)];
-  const open = bracket[0], close = bracket[1];
-  return tokens.slice(0,i1).concat([open], tokens.slice(i1,i2+1), [close], tokens.slice(i2+1));
-}
+/* grouping helpers */
+function applyGrouping(tokens){ let out = tokens.slice(); out = applyGroupingOnce(out, Math.random()<0.5 ? "()" : "[]"); if(Math.random() < 0.22) out = applyGroupingOnce(out, Math.random()<0.5 ? "()" : "[]"); return out; }
+function applyGroupingOnce(tokens, bracket="()"){ if(tokens.length<5) return tokens; const numIdxs=[]; for(let i=0;i<tokens.length;i+=2) numIdxs.push(i); if(numIdxs.length<2) return tokens; const i1 = numIdxs[randInt(0,numIdxs.length-2)]; const i2 = numIdxs[randInt(i1+1,numIdxs.length-1)]; const open=bracket[0], close=bracket[1]; return tokens.slice(0,i1).concat([open], tokens.slice(i1,i2+1), [close], tokens.slice(i2+1)); }
 
 /* canonicalize plain expression (for uniqueness) */
 function canonicalize(s){ return s.replace(/\s+/g,'').replace(/\[/g,'(').replace(/\]/g,')'); }
@@ -596,39 +577,70 @@ function checkNumber(){
     if(inCards){ el.className="alert warn"; el.textContent = `• O número ${n} está em alguma cartela, mas ainda NÃO foi sorteado.`; }
     else { el.className="alert danger"; el.textContent = `✖ O número ${n} não está nas cartelas e não foi sorteado.`; }
   }
+
+  // also update visual marks (useful after manual verify)
+  updateCardMarks();
 }
 
 /* -------------------------
-   Mostrar cartelas na tela de sorteio
+   Mostrar cartelas e marcar sorteados
    ------------------------- */
 document.getElementById("toggle-cards").addEventListener("change", (e)=>{
   const box = document.getElementById("cards-on-draw");
-  if(e.target.checked){ syncCardsOnDraw(); box.style.display="grid"; } else { box.style.display = "none"; }
+  if(e.target.checked){
+    syncCardsOnDraw();
+    box.style.display = "grid";
+  } else {
+    box.style.display = "none";
+  }
 });
+document.getElementById("toggle-marked").addEventListener("change", (e)=>{
+  updateCardMarks();
+});
+
 function syncCardsOnDraw(){
   const box = document.getElementById("cards-on-draw");
-  if(!document.getElementById("toggle-cards").checked) return;
   box.innerHTML = "";
-  if(!generatedCards.length){ const empty = document.createElement("div"); empty.className="card"; empty.textContent="Nenhuma cartela gerada."; box.appendChild(empty); return; }
-  renderCardsPreview(box, generatedCards, cardSize);
+  if(!generatedCards.length){
+    const empty = document.createElement("div"); empty.className="card"; empty.textContent="Nenhuma cartela gerada.";
+    box.appendChild(empty); return;
+  }
+  const shouldMark = document.getElementById("toggle-marked").checked;
+  renderCardsPreview(box, generatedCards, cardSize, shouldMark);
+}
+
+/* updateCardMarks() percorre as cartelas DOM em #cards-on-draw e aplica/removes .marked
+   chamamos sempre que resultsSet muda, ao ativar toggle-marked, ao gerar/limpar, ao carregar estado */
+function updateCardMarks(){
+  const box = document.getElementById("cards-on-draw");
+  if(!box || box.children.length===0) return;
+  const shouldMark = document.getElementById("toggle-marked").checked;
+  // percorre cada card e atualiza células
+  const cardDivs = box.querySelectorAll('.card');
+  cardDivs.forEach((cardDiv, idx)=>{
+    const cells = cardDiv.querySelectorAll('.cell');
+    cells.forEach(cell => {
+      const val = parseInt(cell.textContent);
+      if(shouldMark && resultsSet.has(val)){
+        cell.classList.add('marked');
+      } else {
+        cell.classList.remove('marked');
+      }
+    });
+  });
 }
 
 /* -------------------------
    Export histórico CSV
    ------------------------- */
 function exportHistoryCSV(){
-  // build rows from history DOM (it stores display expressions)
   const rows = [];
-  // include currently shown history items (display = "expr = (?)")
   const items = document.querySelectorAll('#history .item');
   items.forEach(it=>{
     const txt = it.textContent || "";
-    // try find expression
     const expr = txt.replace(' = (?)','').trim();
-    // find result if we have mapping resultToDisplay
     let resultFound = Object.keys(resultToDisplay).find(k => resultToDisplay[k] === expr);
     if(!resultFound){
-      // search by evaluating expression plain form (replace × ÷)
       try{
         const plain = expr.replace(/×/g,'*').replace(/÷/g,'/').replace(/\[/g,'(').replace(/\]/g,')');
         const val = Function(`"use strict"; return (${plain});`)();
@@ -637,7 +649,6 @@ function exportHistoryCSV(){
     }
     rows.push([expr, resultFound || ""]);
   });
-  // CSV content
   let csv = "Expressão;Resultado\n";
   rows.forEach(r => { csv += `${r[0]};${r[1]}\n`; });
   const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
@@ -650,9 +661,7 @@ function exportHistoryCSV(){
 /* -------------------------
    Estado persistente (localStorage)
    ------------------------- */
-function saveState(){
-  saveStateLocal(true);
-}
+function saveState(){ saveStateLocal(true); }
 function saveStateLocal(showAlert){
   try{
     const state = {
@@ -683,7 +692,6 @@ function loadState(){
     expressionsCanon = new Set(state.expressions || []);
     resultsSet = new Set(state.results || []);
     resultToDisplay = state.resultToDisplay || {};
-    // restore config UI
     if(state.settings){
       document.getElementById("difficulty").value = state.settings.difficulty || "normal";
       document.getElementById("expr-range").value = state.settings.exprRange || "300";
@@ -692,8 +700,10 @@ function loadState(){
       document.getElementById("auto-interval").value = state.settings.autoInterval || "0";
       document.getElementById("countdown").value = state.settings.countdown || "0";
     }
-    // render previews
-    renderCardsPreview(document.getElementById("cards-preview"), generatedCards, cardSize);
+    renderCardsPreview(document.getElementById("cards-preview"), generatedCards, cardSize, false);
+    // if cards visible on draw, refresh them and marks
+    if(document.getElementById("toggle-cards").checked) syncCardsOnDraw();
+    updateCardMarks();
     alert("Estado carregado do armazenamento local.");
   }catch(e){ alert("Falha ao carregar estado: "+ e.message); }
 }
@@ -704,7 +714,7 @@ function clearState(){
 }
 
 /* -------------------------
-   Helpers
+   Utilitários
    ------------------------- */
 function getSelectedOps(){
   const out = [];
@@ -719,9 +729,8 @@ function sampleOps(ops, maxCount){ if(!ops || ops.length===0) return ["+"]; if(m
 function divisors(n){ n=Math.abs(Math.floor(n)); const out=[]; for(let i=1;i<=Math.sqrt(n);i++){ if(n%i===0){ out.push(i); if(n/i!==i) out.push(Math.floor(n/i)); }} return out; }
 function canonicalize(s){ return s.replace(/\s+/g,'').replace(/\[/g,'(').replace(/\]/g,')'); }
 
-/* autocalls/initialization */
+/* Inicialização */
 (function init(){
-  // ensure only home visible at start
   showScreen('home');
   document.getElementById('cards-on-draw').style.display = 'none';
 })();
