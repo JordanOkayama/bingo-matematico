@@ -16,20 +16,18 @@
       --accent: #19d3da;
       --danger: #ff5d6c;
       --success:#2ed573;
-      --warning:#ffd166;
       --shadow: 0 10px 30px rgba(0,0,0,.35);
     }
-    *{box-sizing:border-box}
-    body{margin:0;padding:0;background:#0b0f14;color:var(--text);font-family:"Inter",sans-serif}
+    body{margin:0;background:#0b0f14;color:var(--text);font-family:"Inter",sans-serif}
     .wrap{max-width:1200px;margin:32px auto;padding:0 16px}
-    .glass{background:var(--glass);border:1px solid var(--stroke);backdrop-filter: blur(14px) saturate(130%);-webkit-backdrop-filter: blur(14px) saturate(130%);border-radius:18px;box-shadow: var(--shadow);}
+    .glass{background:var(--glass);border:1px solid var(--stroke);backdrop-filter: blur(14px) saturate(130%);border-radius:18px;box-shadow: var(--shadow);}
     header.hero{padding:28px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
     .brand{display:flex;align-items:center;gap:12px}
-    .logo{width:42px;height:42px;border-radius:12px;background: conic-gradient(from 120deg, #7c4dff, #19d3da, #7c4dff);box-shadow: 0 6px 18px rgba(123,77,255,.35);}
+    .logo{width:42px;height:42px;border-radius:12px;background: conic-gradient(from 120deg, #7c4dff, #19d3da, #7c4dff);}
     .brand h1{margin:0;font-size:1.35rem}
     .hero-actions{display:flex;gap:10px;flex-wrap:wrap}
     .btn{padding:12px 18px;border:none;border-radius:12px;cursor:pointer;font-weight:700;color:#0c0f14;background: linear-gradient(135deg, #8a63ff, #19d3da);box-shadow: 0 8px 24px rgba(138,99,255,.35);transition: .2s}
-    .btn:hover{transform: translateY(-2px);box-shadow:0 10px 28px rgba(138,99,255,.45)}
+    .btn:hover{transform: translateY(-2px)}
     .btn.success{background: linear-gradient(135deg, #2ed573, #19d3da)}
     .btn.danger{background: linear-gradient(135deg, #ff6b81, #ff9a9e)}
     .section{margin-top:22px;padding:22px}
@@ -123,23 +121,38 @@
     function generateCard(min,max,size){const pool=[];for(let i=min;i<=max;i++)pool.push(i);for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}return pool.slice(0,size*size);}
     function renderCards(){const c=document.getElementById("cards-preview");c.innerHTML="";generatedCards.forEach(nums=>{const card=document.createElement("div");card.className="card";const grid=document.createElement("div");grid.className="ticket-grid";grid.dataset.size=cardSize;nums.forEach(n=>{const cell=document.createElement("div");cell.className="cell";cell.textContent=n;grid.appendChild(cell)});card.appendChild(grid);c.appendChild(card);});}
 
-    // PDF export: 4 cartelas por página
+    // PDF export com cabeçalho estilizado
     document.getElementById("btn-pdf").onclick=()=>{
       if(!generatedCards.length)return;
       const {jsPDF}=window.jspdf;
       const doc=new jsPDF({orientation:"landscape",unit:"pt",format:"a4"});
       const pageW=doc.internal.pageSize.getWidth(),pageH=doc.internal.pageSize.getHeight();
-      const perPage=4, cellPadding=6;
+      const perPage=4;
       generatedCards.forEach((nums,idx)=>{
         if(idx%perPage===0 && idx!==0)doc.addPage();
         const pos=idx%perPage;
-        const offsetX= (pos%2)*(pageW/2);
-        const offsetY= Math.floor(pos/2)*(pageH/2);
-        const size=cardSize,cell=Math.min((pageW/2-80)/size,(pageH/2-80)/size);
-        doc.setFont("helvetica","bold");doc.setFontSize(18);
-        doc.text(`Cartela ${idx+1}`,offsetX+40,offsetY+30);
-        doc.setFontSize(16);
-        for(let r=0;r<size;r++){for(let c=0;c<size;c++){const n=nums[r*size+c];doc.rect(offsetX+40+c*cell,offsetY+50+r*cell,cell,cell);doc.text(String(n),offsetX+40+c*cell+cell/2,offsetY+50+r*cell+cell/2,{align:"center",baseline:"middle"});}}
+        const offsetX=(pos%2)*(pageW/2);
+        const offsetY=Math.floor(pos/2)*(pageH/2);
+        const size=cardSize,cell=Math.min((pageW/2-80)/size,(pageH/2-120)/size);
+        
+        // Cabeçalho
+        doc.setFont("helvetica","bold");doc.setFontSize(20);
+        doc.setTextColor(138,99,255);
+        doc.text("Bingo Matemático",offsetX+40,offsetY+30);
+        doc.setFontSize(14);
+        doc.setTextColor(25,211,218);
+        doc.text(`Cartela ${idx+1}`,offsetX+40,offsetY+50);
+        doc.setTextColor(0,0,0);
+
+        // Grid
+        doc.setFont("helvetica","bold");doc.setFontSize(16);
+        for(let r=0;r<size;r++){
+          for(let c=0;c<size;c++){
+            const n=nums[r*size+c];
+            doc.rect(offsetX+40+c*cell,offsetY+70+r*cell,cell,cell);
+            doc.text(String(n),offsetX+40+c*cell+cell/2,offsetY+70+r*cell+cell/2,{align:"center",baseline:"middle"});
+          }
+        }
       });
       doc.save("cartelas.pdf");
     };
