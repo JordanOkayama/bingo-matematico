@@ -1,719 +1,730 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Bingo Matemático</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Bingo Matemático</title>
 
-  <!-- jsPDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-  <style>
-    :root{
-      --bg: #0b0f14;
-      --glass: rgba(255,255,255,.06);
-      --stroke: rgba(255,255,255,.10);
-      --text: #e7ecf2;
-      --muted: #a8b3c5;
-      --primaryA: #8a63ff;
-      --primaryB: #19d3da;
-      --accent:#19d3da;
-      --danger: #ff5d6c;
-      --success:#2ed573;
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --pdf-header: #20304a;
-      --pdf-accent: '#8a63ff';
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:
-      radial-gradient(1200px 700px at 15% 10%, #12202f 0%, #0b0f14 50%),
-      radial-gradient(1000px 600px at 95% 90%, #1a1028 0%, #0b0f14 60%);
-      color:var(--text); font-family:"Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-      min-height:100%}
-    .wrap{max-width:1200px;margin:36px auto;padding:0 16px}
-    .glass{
-      background:var(--glass);
-      border:1px solid var(--stroke);
-      backdrop-filter: blur(12px) saturate(120%);
-      -webkit-backdrop-filter: blur(12px) saturate(120%);
-      border-radius:16px;
-      box-shadow: var(--shadow);
-    }
+<style>
+:root{
+  --bg:#0b0f14; --glass: rgba(255,255,255,.06); --stroke: rgba(255,255,255,.10);
+  --text:#e7ecf2; --muted:#a8b3c5;
+  --primaryA:#8a63ff; --primaryB:#19d3da; --success:#2ed573; --danger:#ff6b81;
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:
+  radial-gradient(1200px 700px at 15% 10%, #12202f 0%, #0b0f14 50%),
+  radial-gradient(1000px 600px at 95% 90%, #1a1028 0%, #0b0f14 60%);
+  color:var(--text); font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial; min-height:100%}
+.wrap{max-width:1200px;margin:36px auto;padding:0 16px}
+.glass{background:var(--glass);border:1px solid var(--stroke);backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);border-radius:16px;box-shadow:var(--shadow)}
+/* HERO */
+header.hero{padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:46px;height:46px;border-radius:12px;background:conic-gradient(from 120deg,#7c4dff,#19d3da,#7c4dff);box-shadow:0 8px 26px rgba(138,99,255,.28)}
+.brand h1{margin:0;font-size:1.25rem}
+.hero-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{padding:10px 16px;border-radius:12px;border:none;cursor:pointer;font-weight:800;color:#071019;
+  background: linear-gradient(135deg,var(--primaryA),var(--primaryB));box-shadow:0 10px 28px rgba(138,99,255,.18);transition:transform .12s}
+.btn:hover{transform:translateY(-2px)}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--stroke);box-shadow:none}
+.btn.success{background:linear-gradient(135deg,var(--success),#19d3da);color:#071019}
+.btn.danger{background:linear-gradient(135deg,#ff6b81,#ff9a9e);color:#071019}
 
-    /* HERO */
-    header.hero{padding:22px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .brand{display:flex;align-items:center;gap:12px}
-    .logo{width:46px;height:46px;border-radius:12px;background:conic-gradient(from 120deg,#7c4dff,#19d3da,#7c4dff);box-shadow:0 8px 26px rgba(138,99,255,.28)}
-    .brand h1{margin:0;font-size:1.4rem}
-    .hero-actions{display:flex;gap:10px;flex-wrap:wrap}
-    .btn{
-      padding:12px 18px;border-radius:12px;border:none;cursor:pointer;font-weight:800;color:#071019;
-      background: linear-gradient(135deg,var(--primaryA),var(--primaryB)); box-shadow:0 10px 30px rgba(138,99,255,.18);
-      transition: transform .12s ease, box-shadow .12s ease;
-    }
-    .btn:hover{transform:translateY(-2px)}
-    .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--stroke);box-shadow:none}
-    .btn.success{background: linear-gradient(135deg,var(--success),#19d3da); color:#071019}
-    .btn.danger{background: linear-gradient(135deg,#ff6b81,#ff9a9e); color:#071019}
+.section{margin-top:18px;padding:18px}
+.section h2{margin:0 0 6px 0;font-size:1.1rem}
+.section .hint{color:var(--muted);font-size:.92rem;margin:0 0 12px}
 
-    .section{margin-top:22px;padding:20px}
-    .section h2{margin:0 0 6px 0;font-size:1.15rem}
-    .section .hint{color:var(--muted);font-size:.92rem;margin:0 0 12px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:900px){.grid-2{grid-template-columns:1fr}}
 
-    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-    @media (max-width:900px){.grid-2{grid-template-columns:1fr}}
-
-    label{display:block;font-weight:700;margin:8px 0 6px 2px;color:var(--text)}
-    input[type=number], select, input[type=text]{
-      width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--stroke);background:rgba(255,255,255,.03);color:var(--text)
-    }
-
-    .kpi{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;border:1px dashed var(--stroke);background:rgba(255,255,255,.02);color:var(--muted)}
-    .sep{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);margin:12px 0}
-
-    .expression{font-size:1.6rem;font-weight:900;margin:8px 0;color:#f7f8ff;text-shadow:0 3px 18px rgba(138,99,255,.18)}
-    .history{max-height:260px;overflow:auto;padding:12px;border-radius:12px;border:1px solid var(--stroke);background:rgba(255,255,255,.02)}
-    .history .item{padding:8px;border-bottom:1px dashed var(--stroke);font-weight:700}
-    .history .item:last-child{border-bottom:none}
-
-    .cards-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:12px}
-    .card{padding:12px;border-radius:12px;border:1px solid var(--stroke);background: rgba(255,255,255,.03)}
-    .ticket-grid{display:grid;gap:6px}
-    .ticket-grid[data-size="3"]{grid-template-columns:repeat(3,1fr)}
-    .ticket-grid[data-size="5"]{grid-template-columns:repeat(5,1fr)}
-    .ticket-grid[data-size="7"]{grid-template-columns:repeat(7,1fr)}
-    .cell{border-radius:10px;padding:8px 6px;text-align:center;font-weight:900;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.04)}
-
-    .alert{padding:10px 12px;border-radius:10px;margin-top:10px}
-    .alert.warn{background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.22);color:#ffe39b}
-    .alert.danger{background:rgba(255,109,120,.06);border:1px solid rgba(255,109,120,.22);color:#ffc2c7}
-    .alert.success{background:rgba(46,213,115,.06);border:1px solid rgba(46,213,115,.22);color:#b9ffcf}
-
-    .tiny{font-size:.86rem;color:var(--muted)}
-    .muted{color:var(--muted)}
-
-    .switch{display:inline-flex;align-items:center;gap:8px}
-    .toggle{width:46px;height:26px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--stroke);position:relative}
-    .dot{position:absolute;top:50%;left:4px;transform:translateY(-50%);width:18px;height:18px;border-radius:50%;background:#fff;transition:left .12s}
-    .switch input{display:none}
-    .switch input:checked + .toggle .dot{left:24px}
-
-    footer{color:var(--muted);text-align:center;margin:22px 0;font-size:.9rem}
-  </style>
+label{display:block;font-weight:700;margin:6px 0 6px 2px;color:var(--text)}
+input[type=number], select, input[type=text]{width:100%;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:rgba(255,255,255,.03);color:var(--text)}
+.kpi{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;border:1px dashed var(--stroke);background:rgba(255,255,255,.02);color:var(--muted)}
+.sep{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);margin:12px 0}
+.expression{font-size:1.5rem;font-weight:900;margin:8px 0;color:#f7f8ff;text-shadow:0 3px 18px rgba(138,99,255,.18)}
+.history{max-height:260px;overflow:auto;padding:10px;border-radius:10px;border:1px solid var(--stroke);background:rgba(255,255,255,.02)}
+.history .item{padding:8px;border-bottom:1px dashed var(--stroke);font-weight:700}
+.cards-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px}
+.card{padding:10px;border-radius:10px;border:1px solid var(--stroke);background: rgba(255,255,255,.03)}
+.ticket-grid{display:grid;gap:6px}
+.ticket-grid[data-size="3"]{grid-template-columns:repeat(3,1fr)}
+.ticket-grid[data-size="5"]{grid-template-columns:repeat(5,1fr)}
+.ticket-grid[data-size="7"]{grid-template-columns:repeat(7,1fr)}
+.cell{border-radius:8px;padding:6px;text-align:center;font-weight:900;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.04);font-size:1.05rem}
+.alert{padding:8px;border-radius:8px;margin-top:10px}
+.alert.warn{background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.22);color:#ffe39b}
+.alert.danger{background:rgba(255,109,120,.06);border:1px solid rgba(255,109,120,.22);color:#ffc2c7}
+.alert.success{background:rgba(46,213,115,.06);border:1px solid rgba(46,213,115,.22);color:#b9ffcf}
+.tiny{font-size:.86rem;color:var(--muted)}
+.muted{color:var(--muted)}
+.switch{display:inline-flex;align-items:center;gap:8px}
+.toggle{width:46px;height:26px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--stroke);position:relative}
+.dot{position:absolute;top:50%;left:4px;transform:translateY(-50%);width:18px;height:18px;border-radius:50%;background:#fff;transition:left .12s}
+.switch input{display:none}
+.switch input:checked + .toggle .dot{left:24px}
+footer{color:var(--muted);text-align:center;margin:18px 0;font-size:.9rem}
+.screen{display:none}
+.screen.active{display:block}
+.small-ghost{padding:8px 10px;border-radius:10px;background:transparent;border:1px solid var(--stroke);color:var(--text);cursor:pointer}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <header class="hero glass">
-      <div class="brand">
-        <div class="logo" aria-hidden="true"></div>
-        <div>
-          <h1>Bingo Matemático</h1>
-          <div class="tiny muted">Tema glass/dark — interface moderna</div>
+<div class="wrap">
+  <header class="hero glass">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <h1>Bingo Matemático</h1>
+        <div class="tiny muted">Tema glass/dark — interface moderna</div>
+      </div>
+    </div>
+
+    <div class="hero-actions">
+      <button class="small-ghost" onclick="saveState()">💾 Salvar estado</button>
+      <button class="small-ghost" onclick="loadState()">📁 Carregar estado</button>
+      <button class="small-ghost" onclick="clearState()">🧹 Limpar estado</button>
+      <button class="btn" data-target="generate">Gerar cartela</button>
+      <button class="btn success" data-target="config">Começar sorteio</button>
+      <button class="btn ghost" data-target="home">Início</button>
+    </div>
+  </header>
+
+  <!-- HOME -->
+  <section id="home" class="screen active section glass">
+    <h2>Pronto para jogar?</h2>
+    <p class="hint">Gere cartelas para a turma e/ou configure o sorteio. Você pode sortear sem cartelas — ideal para reaproveitar impressões.</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Gerar cartelas</h3>
+        <p class="tiny">Crie cartelas 3×3, 5×5 ou 7×7 e exporte em PDF (4 por página, paisagem).</p>
+        <div class="sep"></div>
+        <button class="btn" data-target="generate">Abrir gerador</button>
+      </div>
+
+      <div class="card">
+        <h3>Configurar sorteio</h3>
+        <p class="tiny">Escolha operações, dificuldade, intervalos e timers. Resultado das expressões fica oculto até revelar.</p>
+        <div class="sep"></div>
+        <button class="btn success" data-target="config">Abrir configurações</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- GERAÇÃO CARTELAS -->
+  <section id="generate" class="screen section glass">
+    <h2>Gerador de cartelas</h2>
+    <p class="hint">Números únicos por cartela — validação automática evita intervalo insuficiente.</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <label>Intervalo mínimo</label>
+        <input id="min-number" type="number" value="1" min="0"/>
+        <label>Intervalo máximo</label>
+        <input id="max-number" type="number" value="60" min="1"/>
+        <label>Tamanho da cartela</label>
+        <select id="grid-size"><option value="3">3 × 3 (9)</option><option value="5" selected>5 × 5 (25)</option><option value="7">7 × 7 (49)</option></select>
+        <label>Quantidade de cartelas</label>
+        <input id="card-count" type="number" value="4" min="1" max="60"/>
+        <div class="row" style="margin-top:8px">
+          <button class="btn" id="btn-generate">Gerar cartelas</button>
+          <button class="btn ghost" data-target="home">Voltar</button>
+        </div>
+        <div id="gen-alert" class="alert danger" style="display:none"></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <strong>Pré-visualização</strong>
+          <button class="btn success" id="btn-pdf">Exportar PDF (4 por página)</button>
+        </div>
+        <div id="generated-info" class="kpi" style="display:none;margin-top:10px"></div>
+        <div id="cards-preview" class="cards-wrap" style="margin-top:12px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONFIGURAÇÃO -->
+  <section id="config" class="screen section glass">
+    <h2>Configurações do sorteio</h2>
+    <p class="hint">Configure dificuldade, operações, intervalos e timers. Você pode iniciar sem cartelas geradas.</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <label>Dificuldade</label>
+        <select id="difficulty">
+          <option value="easy">Fácil — 2 números, 1 operação (sem parênteses)</option>
+          <option value="normal">Normal — 2 a 5 números, até 3 operações</option>
+          <option value="hard">Difícil — 5 a 10 números, até 4 operações (parênteses/colchetes)</option>
+        </select>
+
+        <label>Operações</label>
+        <div class="row" style="margin-top:6px">
+          <label class="switch"><input type="checkbox" id="op-add" checked><span class="toggle"><span class="dot"></span></span><span class="tiny">+</span></label>
+          <label class="switch"><input type="checkbox" id="op-sub" checked><span class="toggle"><span class="dot"></span></span><span class="tiny">−</span></label>
+          <label class="switch"><input type="checkbox" id="op-mul" checked><span class="toggle"><span class="dot"></span></span><span class="tiny">×</span></label>
+          <label class="switch"><input type="checkbox" id="op-div"><span class="toggle"><span class="dot"></span></span><span class="tiny">÷</span></label>
+        </div>
+
+        <div class="sep"></div>
+        <label>Intervalo dos números nas expressões</label>
+        <select id="expr-range"><option value="100">1 — 100</option><option value="300">1 — 300</option><option value="500">1 — 500</option></select>
+
+        <label>Intervalo de sorteio (resultado final permitido)</label>
+        <div class="row">
+          <input id="draw-min" type="number" value="1" style="max-width:160px"/>
+          <input id="draw-max" type="number" value="100" style="max-width:160px"/>
         </div>
       </div>
 
-      <div class="hero-actions">
-        <button class="btn" data-target="generate">Gerar cartela</button>
-        <button class="btn success" data-target="config">Começar sorteio</button>
-        <button class="btn ghost" data-target="home">Início</button>
+      <div class="card">
+        <h3>Timers</h3>
+        <p class="tiny">Ative o automático para sortear periodicamente; o cronômetro limita a sessão.</p>
+        <label>Intervalo automático (segundos, 0 = desativado)</label>
+        <input id="auto-interval" type="number" value="0" min="0"/>
+        <label>Cronômetro regressivo (minutos, 0 = sem limite)</label>
+        <input id="countdown" type="number" value="0" min="0"/>
+        <div class="sep"></div>
+        <div class="row">
+          <button class="btn success" onclick="startGame()">Iniciar sorteio</button>
+          <button class="btn ghost" data-target="home">Voltar</button>
+        </div>
+        <div id="cfg-alert" class="alert danger" style="display:none"></div>
       </div>
-    </header>
+    </div>
+  </section>
 
-    <!-- HOME -->
-    <section id="home" class="screen active section glass">
-      <h2>Pronto para jogar?</h2>
-      <p class="hint">Gere cartelas para a turma e/ou configure o sorteio. Você pode sortear sem cartelas — ideal para reaproveitar impressões.</p>
+  <!-- SORTEIO -->
+  <section id="draw" class="screen section glass">
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <h2>Sorteio em andamento</h2>
+      <div class="kpi">Tempo: <strong id="countdown-display" style="margin-left:8px">--:--</strong></div>
+    </div>
 
-      <div class="grid-2">
-        <div class="card">
-          <h3>Gerar cartelas</h3>
-          <p class="tiny">Crie cartelas 3×3, 5×5 ou 7×7 e exporte em PDF (4 por página, paisagem).</p>
-          <div class="sep"></div>
-          <button class="btn" data-target="generate">Abrir gerador</button>
+    <div class="grid-2">
+      <div class="card">
+        <div id="current-expression" class="expression">Pronto para sortear…</div>
+
+        <div class="row">
+          <button class="btn" onclick="drawExpression()">Sortear expressão</button>
+          <button class="btn success" onclick="clearDraws()">Limpar sorteio</button>
+          <button class="btn danger" onclick="stopTimers()">Parar timers</button>
+          <button class="btn ghost" data-target="home" onclick="stopTimers()">Encerrar</button>
         </div>
 
-        <div class="card">
-          <h3>Configurar sorteio</h3>
-          <p class="tiny">Escolha operações, dificuldade, intervalos e timers. Resultado das expressões fica oculto até revelar.</p>
-          <div class="sep"></div>
-          <button class="btn success" data-target="config">Abrir configurações</button>
-        </div>
-      </div>
-    </section>
+        <div id="draw-alert" class="alert warn" style="display:none"></div>
+        <div class="sep"></div>
 
-    <!-- GERAÇÃO CARTELAS -->
-    <section id="generate" class="screen section glass">
-      <h2>Gerador de cartelas</h2>
-      <p class="hint">Números únicos por cartela — validação automática evita intervalo insuficiente.</p>
-
-      <div class="grid-2">
-        <div class="card">
-          <label>Intervalo mínimo</label>
-          <input id="min-number" type="number" value="1" min="0"/>
-          <label>Intervalo máximo</label>
-          <input id="max-number" type="number" value="60" min="1"/>
-          <label>Tamanho da cartela</label>
-          <select id="grid-size">
-            <option value="3">3 × 3 (9)</option>
-            <option value="5" selected>5 × 5 (25)</option>
-            <option value="7">7 × 7 (49)</option>
-          </select>
-          <label>Quantidade de cartelas</label>
-          <input id="card-count" type="number" value="4" min="1" max="60"/>
-          <div class="row" style="margin-top:8px">
-            <button class="btn" id="btn-generate">Gerar cartelas</button>
-            <button class="btn ghost" data-target="home">Voltar</button>
-          </div>
-          <div id="gen-alert" class="alert danger" style="display:none"></div>
-        </div>
-
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <strong>Pré-visualização</strong>
-            <button class="btn success" id="btn-pdf">Exportar PDF</button>
-          </div>
-          <div id="generated-info" class="kpi" style="display:none;margin-top:10px"></div>
-          <div id="cards-preview" class="cards-wrap" style="margin-top:12px"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- CONFIGURAÇÃO -->
-    <section id="config" class="screen section glass">
-      <h2>Configurações do sorteio</h2>
-      <p class="hint">Configure dificuldade, operações, intervalos e timers. Você pode iniciar sem cartelas geradas.</p>
-
-      <div class="grid-2">
-        <div class="card">
-          <label>Dificuldade</label>
-          <select id="difficulty">
-            <option value="easy">Fácil — 2 números, 1 operação (sem parênteses)</option>
-            <option value="normal">Normal — 2 a 5 números, até 3 operações</option>
-            <option value="hard">Difícil — 5 a 10 números, até 4 operações (parênteses/colchetes)</option>
-          </select>
-
-          <label>Operações</label>
-          <div class="row" style="margin-top:6px">
-            <label class="switch"><input type="checkbox" id="op-add" checked><span class="toggle"><span class="dot"></span></span><span class="tiny">+</span></label>
-            <label class="switch"><input type="checkbox" id="op-sub" checked><span class="toggle"><span class="dot"></span></span><span class="tiny">−</span></label>
-            <label class="switch"><input type="checkbox" id="op-mul" checked><span class="toggle"><span class="dot"></span></span><span class="tiny">×</span></label>
-            <label class="switch"><input type="checkbox" id="op-div"><span class="toggle"><span class="dot"></span></span><span class="tiny">÷</span></label>
-          </div>
-
-          <div class="sep"></div>
-          <label>Intervalo dos números nas expressões</label>
-          <select id="expr-range"><option value="100">1 — 100</option><option value="300">1 — 300</option><option value="500">1 — 500</option></select>
-
-          <label>Intervalo de sorteio (resultado final permitido)</label>
-          <div class="row">
-            <input id="draw-min" type="number" value="1" style="max-width:160px"/>
-            <input id="draw-max" type="number" value="100" style="max-width:160px"/>
-          </div>
-
-        </div>
-
-        <div class="card">
-          <h3>Timers</h3>
-          <p class="tiny">Ative o automático para sortear periodicamente; o cronômetro limita a sessão.</p>
-          <label>Intervalo automático (segundos, 0 = desativado)</label>
-          <input id="auto-interval" type="number" value="0" min="0"/>
-          <label>Cronômetro regressivo (minutos, 0 = sem limite)</label>
-          <input id="countdown" type="number" value="0" min="0"/>
-          <div class="sep"></div>
-          <div class="row">
-            <button class="btn success" onclick="startGame()">Iniciar sorteio</button>
-            <button class="btn ghost" data-target="home">Voltar</button>
-          </div>
-          <div id="cfg-alert" class="alert danger" style="display:none"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SORTEIO -->
-    <section id="draw" class="screen section glass">
-      <div class="row" style="justify-content:space-between;align-items:center">
-        <h2>Sorteio em andamento</h2>
-        <div class="kpi">Tempo: <strong id="countdown-display" style="margin-left:8px">--:--</strong></div>
-      </div>
-
-      <div class="grid-2">
-        <div class="card">
-          <div id="current-expression" class="expression">Pronto para sortear…</div>
-          <div class="row">
-            <button class="btn" onclick="drawExpression()">Sortear expressão</button>
-            <button class="btn success" onclick="clearDraws()">Limpar sorteio</button>
-            <button class="btn danger" onclick="stopTimers()">Parar timers</button>
-            <button class="btn ghost" data-target="home" onclick="stopTimers()">Encerrar</button>
-          </div>
-
-          <div id="draw-alert" class="alert warn" style="display:none"></div>
-          <div class="sep"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
           <h3>Histórico</h3>
-          <div id="history" class="history"></div>
+          <div>
+            <button class="small-ghost" onclick="exportHistoryCSV()">📥 Exportar CSV</button>
+          </div>
         </div>
 
-        <div class="card">
-          <h3>Verificações</h3>
-          <label>Digite um número</label>
-          <div class="row">
-            <input type="number" id="check-number" style="max-width:180px"/>
-            <button class="btn" onclick="checkNumber()">Verificar</button>
-          </div>
-          <div id="check-result" class="alert" style="display:none;margin-top:12px"></div>
-
-          <div class="sep"></div>
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <strong>Exibir cartelas</strong>
-            <label class="switch"><input type="checkbox" id="toggle-cards"/><span class="toggle"><span class="dot"></span></span></label>
-          </div>
-          <div id="cards-on-draw" class="cards-wrap" style="margin-top:12px;display:none"></div>
-        </div>
+        <div id="history" class="history" aria-live="polite"></div>
       </div>
-    </section>
 
-    <footer>© 2025 — Bingo Matemático • Tema glass/dark</footer>
-  </div>
+      <div class="card">
+        <h3>Verificações</h3>
+        <label>Digite um número</label>
+        <div class="row">
+          <input type="number" id="check-number" style="max-width:180px"/>
+          <button class="btn" onclick="checkNumber()">Verificar</button>
+        </div>
+        <div id="check-result" class="alert" style="display:none;margin-top:12px"></div>
 
-  <script>
-    // -------------------------
-    // Estado global / estruturas
-    // -------------------------
-    let generatedCards = [];       // array de arrays (cada cartela linear)
-    let cardSize = 5;              // 3 / 5 / 7
-    let expressionsCanon = new Set(); // conjunto canônico (JS-eval) para evitar repetições
-    let resultsSet = new Set();       // números já sorteados
-    let resultToDisplay = {};         // mapa result -> displayExpression (ex: "12 × (3 + 4)")
-    let autoTimer = null, countdownTimer = null, timeLeft = 0;
+        <div class="sep"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <strong>Exibir cartelas</strong>
+          <label class="switch"><input type="checkbox" id="toggle-cards"/><span class="toggle"><span class="dot"></span></span></label>
+        </div>
 
-    // Navegação
-    document.querySelectorAll("[data-target]").forEach(btn=>{
-      btn.addEventListener("click", ()=> showScreen(btn.getAttribute("data-target")));
+        <div id="cards-on-draw" class="cards-wrap" style="margin-top:12px;display:none"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>© 2025 — Bingo Matemático</footer>
+</div>
+
+<script>
+/* -------------------------
+   Estado global / estruturas
+   ------------------------- */
+let generatedCards = [];
+let cardSize = 5;
+let expressionsCanon = new Set();
+let resultsSet = new Set();
+let resultToDisplay = {}; // map result -> display expression
+let autoTimer = null, countdownTimer = null, timeLeft = 0;
+
+/* ---------- Navegação ---------- */
+document.querySelectorAll("[data-target]").forEach(btn=>{
+  btn.addEventListener("click", ()=> showScreen(btn.getAttribute("data-target")));
+});
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  const el = document.getElementById(id);
+  if(el) el.classList.add("active");
+  if(id === "draw") syncCardsOnDraw();
+}
+
+/* -------------------------
+   Geração de cartelas
+   ------------------------- */
+const elGenAlert = document.getElementById("gen-alert");
+const elGeneratedInfo = document.getElementById("generated-info");
+const elCardsPreview = document.getElementById("cards-preview");
+document.getElementById("btn-generate").addEventListener("click", ()=>{
+  elGenAlert.style.display = "none";
+  const min = parseInt(document.getElementById("min-number").value);
+  const max = parseInt(document.getElementById("max-number").value);
+  const size = parseInt(document.getElementById("grid-size").value);
+  const count = parseInt(document.getElementById("card-count").value);
+
+  if(isNaN(min)||isNaN(max)||isNaN(size)||isNaN(count)){ return showGenError("Preencha todos os campos corretamente."); }
+  if(max < min) return showGenError("O máximo deve ser maior ou igual ao mínimo.");
+  const needed = size * size;
+  const available = (max - min + 1);
+  if(available < needed) return showGenError(`Intervalo insuficiente: precisa de ${needed} números únicos mas há ${available}.`);
+  if(count < 1 || count > 60) return showGenError("Quantidade de cartelas deve ser entre 1 e 60.");
+
+  cardSize = size;
+  generatedCards = [];
+  for(let i=0;i<count;i++) generatedCards.push(generateUniqueCard(min, max, size));
+  renderCardsPreview(elCardsPreview, generatedCards, size);
+  elGeneratedInfo.style.display = "flex";
+  elGeneratedInfo.textContent = `Geradas ${count} cartelas (${size}×${size}) — números ${min} a ${max}.`;
+
+  // auto-save small
+  saveStateLocal(false);
+});
+
+function showGenError(msg){ elGenAlert.textContent = msg; elGenAlert.style.display = "block"; }
+
+function generateUniqueCard(min, max, size){
+  const total = size * size;
+  const pool = [];
+  for(let n=min;n<=max;n++) pool.push(n);
+  for(let i=pool.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [pool[i],pool[j]]=[pool[j],pool[i]];
+  }
+  return pool.slice(0,total);
+}
+
+function renderCardsPreview(container, cards, size){
+  container.innerHTML = "";
+  cards.forEach((nums, idx)=>{
+    const card = document.createElement("div"); card.className = "card";
+    const title = document.createElement("div"); title.style.display="flex"; title.style.justifyContent="space-between"; title.style.marginBottom="8px";
+    title.innerHTML = `<strong>Cartela ${idx+1}</strong><span class="tiny muted">${size}×${size}</span>`;
+    const grid = document.createElement("div"); grid.className = "ticket-grid"; grid.dataset.size = String(size);
+    nums.forEach(n=>{
+      const cell = document.createElement("div"); cell.className = "cell"; cell.textContent = n;
+      cell.style.fontSize = "1.1rem";
+      grid.appendChild(cell);
     });
-    function showScreen(id){
-      document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
-      const el = document.getElementById(id);
-      if(el) el.classList.add("active");
-      if(id === "draw"){ syncCardsOnDraw(); }
-    }
+    card.appendChild(title); card.appendChild(grid); container.appendChild(card);
+  });
+}
 
-    // -------------------------
-    // Geração de cartelas
-    // -------------------------
-    const elGenAlert = document.getElementById("gen-alert");
-    const elGeneratedInfo = document.getElementById("generated-info");
-    const elCardsPreview = document.getElementById("cards-preview");
+/* PDF export — 4 per A4 landscape, white background, modern card */
+document.getElementById("btn-pdf").addEventListener("click", ()=>{
+  if(!generatedCards.length){
+    showGenError("Gere cartelas antes de exportar o PDF."); return;
+  }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'pt', format:'a4', orientation:'landscape' });
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const margin = 28;
+  const perRow = 2, perCol = 2;
+  const cardW = (pageW - margin*(perRow+1))/perRow;
+  const cardH = (pageH - margin*(perCol+1))/perCol;
 
-    document.getElementById("btn-generate").addEventListener("click", ()=>{
-      elGenAlert.style.display = "none";
-      const min = parseInt(document.getElementById("min-number").value);
-      const max = parseInt(document.getElementById("max-number").value);
-      const size = parseInt(document.getElementById("grid-size").value);
-      const count = parseInt(document.getElementById("card-count").value);
+  for(let i=0;i<generatedCards.length;i++){
+    if(i>0 && i%(perRow*perCol)===0) doc.addPage();
+    const pageIndex = i % (perRow*perCol);
+    const col = pageIndex % perRow;
+    const row = Math.floor(pageIndex / perRow);
+    const x = margin + col*(cardW + margin);
+    const y = margin + row*(cardH + margin);
+    drawCardPDF(doc, generatedCards[i], x, y, cardW, cardH, cardSize, i+1);
+  }
+  doc.save('cartelas-bingo.pdf');
+});
 
-      if(isNaN(min) || isNaN(max) || isNaN(size) || isNaN(count)){
-        return showGenError("Preencha todos os campos corretamente.");
-      }
-      if(max < min) return showGenError("O máximo deve ser maior ou igual ao mínimo.");
-      const needed = size * size;
-      const available = (max - min + 1);
-      if(available < needed) return showGenError(`Intervalo insuficiente: precisa de ${needed} números únicos mas há ${available}.`);
+function drawCardPDF(doc, nums, x, y, w, h, size, cardNum){
+  // white card background
+  doc.setFillColor(255,255,255);
+  doc.rect(x, y, w, h, 'F'); // fill white
+  // header strip
+  const headerH = Math.max(28, h * 0.12);
+  doc.setFillColor(138,99,255);
+  doc.rect(x, y, w, headerH, 'F');
+  // title
+  doc.setFontSize(12); doc.setTextColor(255,255,255); doc.setFont('helvetica','bold');
+  doc.text(`Cartela ${cardNum}`, x + w/2, y + headerH/2 + 4, {align:'center', baseline:'middle'});
 
-      if(count < 1 || count > 60) return showGenError("Quantidade de cartelas deve ser entre 1 e 60.");
+  // grid
+  const gridTop = y + headerH + 12;
+  const gridH = h - headerH - 24;
+  const gridW = w - 24;
+  const cellSize = Math.min(Math.floor(gridW/size), Math.floor(gridH/size));
+  const offsetX = x + (w - cellSize*size)/2;
+  const offsetY = gridTop + (gridH - cellSize*size)/2;
 
-      cardSize = size;
-      generatedCards = [];
-      for(let i=0;i<count;i++){
-        generatedCards.push(generateUniqueCard(min, max, size));
-      }
-      renderCardsPreview(elCardsPreview, generatedCards, size);
-      elGeneratedInfo.style.display = "flex";
-      elGeneratedInfo.textContent = `Geradas ${count} cartelas (${size}×${size}) — números ${min} a ${max}.`;
-    });
-
-    function showGenError(msg){
-      elGenAlert.textContent = msg; elGenAlert.style.display = "block";
-    }
-
-    function generateUniqueCard(min, max, size){
-      const total = size * size;
-      const pool = [];
-      for(let n=min;n<=max;n++) pool.push(n);
-      // embaralha
-      for(let i=pool.length-1;i>0;i--){
-        const j = Math.floor(Math.random()*(i+1));
-        [pool[i],pool[j]] = [pool[j],pool[i]];
-      }
-      return pool.slice(0, total);
-    }
-
-    function renderCardsPreview(container, cards, size){
-      container.innerHTML = "";
-      cards.forEach((nums, idx)=>{
-        const card = document.createElement("div"); card.className = "card";
-        const title = document.createElement("div"); title.style.display="flex"; title.style.justifyContent="space-between"; title.style.marginBottom="8px";
-        title.innerHTML = `<strong>Cartela ${idx+1}</strong><span class="tiny muted">${size}×${size}</span>`;
-        const grid = document.createElement("div"); grid.className = "ticket-grid"; grid.dataset.size = String(size);
-        nums.forEach(n=>{
-          const cell = document.createElement("div"); cell.className = "cell"; cell.textContent = n;
-          cell.style.fontSize = "1.1rem";
-          grid.appendChild(cell);
-        });
-        card.appendChild(title); card.appendChild(grid);
-        container.appendChild(card);
-      });
-    }
-
-    // PDF: 4 cartelas por folha A4 (landscape), design moderno e fonte grande
-    document.getElementById("btn-pdf").addEventListener("click", ()=>{
-      if(!generatedCards.length){
-        showGenError("Gere cartelas antes de exportar o PDF.");
-        return;
-      }
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({ unit:'pt', format:'a4', orientation:'landscape' });
-      const pageW = doc.internal.pageSize.getWidth();
-      const pageH = doc.internal.pageSize.getHeight();
-      const margin = 28;
-      const perRow = 2;
-      const perCol = 2;
-      const cardW = (pageW - margin*(perRow+1))/perRow;
-      const cardH = (pageH - margin*(perCol+1))/perCol;
-
-      for(let i=0;i<generatedCards.length;i++){
-        if(i>0 && i%(perRow*perCol) === 0) doc.addPage();
-        const pageIndex = i % (perRow*perCol);
-        const col = pageIndex % perRow;
-        const row = Math.floor(pageIndex / perRow);
-        const x = margin + col*(cardW + margin);
-        const y = margin + row*(cardH + margin);
-
-        drawCardPDF(doc, generatedCards[i], x, y, cardW, cardH, cardSize, i+1);
-      }
-      doc.save('cartelas-bingo.pdf');
-    });
-
-    function drawCardPDF(doc, nums, x, y, w, h, size, cardNum){
-      // Modern card: rounded rect background, colored header, numbers centered larger
-      const radius = 8;
-      doc.setFillColor(20,28,40);
-      roundRect(doc, x, y, w, h, radius, 'F');
-
-      // header bar
-      doc.setFillColor(138,99,255); // purple
-      const headerH = Math.max(28, h * 0.12);
-      roundRect(doc, x, y, w, headerH, {tl:radius, tr:radius, br:0, bl:0}, 'F');
-
-      // title in header
-      doc.setFontSize(12);
-      doc.setTextColor(255,255,255);
+  doc.setDrawColor(60,60,60);
+  doc.setLineWidth(0.9);
+  for(let r=0;r<size;r++){
+    for(let c=0;c<size;c++){
+      const cx = offsetX + c*cellSize;
+      const cy = offsetY + r*cellSize;
+      doc.rect(cx, cy, cellSize, cellSize);
+      const n = nums[r*size + c];
+      const fontSize = Math.min(Math.max(20, Math.floor(cellSize * 0.5)), 64);
+      doc.setFontSize(fontSize);
+      doc.setTextColor(20,20,20);
       doc.setFont('helvetica','bold');
-      doc.text(`Cartela ${cardNum}`, x + w/2, y + headerH/2 + 4, { align: 'center', baseline: 'middle' });
-
-      // draw grid area
-      const gridTop = y + headerH + 12;
-      const gridH = h - headerH - 24;
-      const gridW = w - 24;
-      const cellSize = Math.min( Math.floor(gridW/size), Math.floor(gridH/size) );
-      const offsetX = x + (w - cellSize*size)/2;
-      const offsetY = gridTop + (gridH - cellSize*size)/2;
-
-      doc.setDrawColor(255,255,255,0.08);
-      doc.setLineWidth(0.8);
-      // cell boxes and numbers
-      for(let r=0;r<size;r++){
-        for(let c=0;c<size;c++){
-          const cx = offsetX + c*cellSize;
-          const cy = offsetY + r*cellSize;
-          // cell background
-          roundRect(doc, cx, cy, cellSize, cellSize, 6, 'S');
-          // number
-          const n = nums[r*size + c];
-          // bigger font
-          const fontSize = Math.min( Math.max(18, Math.floor(cellSize * 0.45)), 44 );
-          doc.setFontSize(fontSize);
-          doc.setTextColor(230,236,242);
-          doc.setFont('helvetica','bold');
-          doc.text(String(n), cx + cellSize/2, cy + cellSize/2 + fontSize*0.08, {align:'center', baseline:'middle'});
-        }
-      }
-
-      // footer small note
-      doc.setFontSize(9);
-      doc.setTextColor(170,180,195);
-      doc.setFont('helvetica','normal');
-      doc.text('Bingo Matemático — resolva as expressões! (resultado oculto em sala)', x + 12, y + h - 10);
+      doc.text(String(n), cx + cellSize/2, cy + cellSize/2 + fontSize*0.06, {align:'center', baseline:'middle'});
     }
+  }
+  // no footer note (removed per request)
+}
 
-    function roundRect(doc, x, y, w, h, r, style='S'){
-      // r numeric or object for corners
-      let tl = 0, tr = 0, br = 0, bl = 0;
-      if(typeof r === 'object'){ tl = r.tl||0; tr = r.tr||0; br = r.br||0; bl = r.bl||0; }
-      else tl = tr = br = bl = r;
-      doc.roundedRect(x, y, w, h, tl, tl, style);
+/* -------------------------
+   Sorteio & timers
+   ------------------------- */
+const elCfgAlert = document.getElementById("cfg-alert");
+const elDrawAlert = document.getElementById("draw-alert");
+const elHistory = document.getElementById("history");
+const elCurrentExpression = document.getElementById("current-expression");
+const elCountdownDisplay = document.getElementById("countdown-display");
+
+function startGame(){
+  elCfgAlert.style.display = "none"; elDrawAlert.style.display = "none";
+  expressionsCanon = new Set(); resultsSet = new Set(); resultToDisplay = {};
+  elHistory.innerHTML = ""; elCurrentExpression.textContent = "Pronto para sortear…";
+  stopTimers();
+
+  const ops = getSelectedOps();
+  if(ops.length === 0){ elCfgAlert.textContent = "Selecione ao menos uma operação."; elCfgAlert.style.display = "block"; return; }
+
+  const autoInt = parseInt(document.getElementById("auto-interval").value || "0");
+  if(autoInt > 0) autoTimer = setInterval(()=> drawExpression(), autoInt*1000);
+
+  const mins = parseInt(document.getElementById("countdown").value || "0");
+  if(mins > 0){
+    timeLeft = mins * 60; updateCountdown();
+    countdownTimer = setInterval(()=>{
+      timeLeft--; updateCountdown();
+      if(timeLeft <= 0){
+        stopTimers();
+        elDrawAlert.textContent = "Tempo esgotado — timers parados."; elDrawAlert.className = "alert warn"; elDrawAlert.style.display = "block";
+      }
+    }, 1000);
+  } else elCountdownDisplay.textContent = "--:--";
+
+  showScreen("draw");
+}
+
+function stopTimers(){ if(autoTimer){clearInterval(autoTimer);autoTimer=null;} if(countdownTimer){clearInterval(countdownTimer);countdownTimer=null;} }
+function updateCountdown(){ const m=Math.floor(timeLeft/60), s=timeLeft%60; elCountdownDisplay.textContent = `${m}:${String(s).padStart(2,'0')}`; }
+
+function clearDraws(){
+  expressionsCanon = new Set(); resultsSet = new Set(); resultToDisplay = {};
+  elHistory.innerHTML = ""; elCurrentExpression.textContent = "Pronto para sortear…"; elDrawAlert.style.display = "none";
+  saveStateLocal(false);
+}
+
+/* Core: gera expressão garantindo resultado inteiro (não aceita decimais) */
+function drawExpression(){
+  elDrawAlert.style.display = "none";
+  const difficulty = document.getElementById("difficulty").value;
+  const exprRange = parseInt(document.getElementById("expr-range").value || "300");
+  const drawMin = parseInt(document.getElementById("draw-min").value || "1");
+  const drawMax = parseInt(document.getElementById("draw-max").value || "100");
+  if(drawMax < drawMin){ elDrawAlert.textContent = "Intervalo de sorteio inválido (máx < mín)."; elDrawAlert.className = "alert danger"; elDrawAlert.style.display = "block"; return; }
+
+  let tries = 0; let chosen = null;
+  while(tries < 600){
+    tries++;
+    const candidate = generateExpressionWithPlain(difficulty, exprRange);
+    if(!candidate) continue;
+    // candidate.result must be an integer (no decimals), not NaN
+    if(candidate.result === undefined || candidate.result === null || !Number.isFinite(candidate.result)) continue;
+    if(!Number.isInteger(candidate.result)) continue; // REJECT decimal results
+    if(candidate.result < drawMin || candidate.result > drawMax) continue;
+    const canon = canonicalize(candidate.plainEvalExpr);
+    if(expressionsCanon.has(canon)) continue;
+    if(resultsSet.has(candidate.result)) continue;
+    chosen = candidate; break;
+  }
+  if(!chosen){ elDrawAlert.textContent = "Não foi possível gerar expressão inteira e única. Ajuste opções/intervalos."; elDrawAlert.className = "alert danger"; elDrawAlert.style.display = "block"; return; }
+
+  const canonChosen = canonicalize(chosen.plainEvalExpr);
+  expressionsCanon.add(canonChosen);
+  resultsSet.add(chosen.result);
+  resultToDisplay[chosen.result] = chosen.displayExpr;
+
+  elCurrentExpression.textContent = chosen.displayExpr + "  =  ?";
+  const item = document.createElement("div"); item.className = "item"; item.textContent = `${chosen.displayExpr}  =  (?)`;
+  elHistory.prepend(item);
+
+  // auto-save small
+  saveStateLocal(false);
+}
+
+/* Gera expressão com duas representações:
+   - plainEvalExpr (JS-evaluable) using * and /
+   - displayExpr (user friendly) using × and ÷
+   - result numeric (not rounded) */
+function generateExpressionWithPlain(level, range){
+  const ops = getSelectedOps(); const opsCount = Math.max(ops.length, 1);
+  let numsCount = 2, maxOps = 1;
+  if(level==="easy"){ numsCount=2; maxOps=1; }
+  else if(level==="normal"){ numsCount = randInt(2,5); maxOps = Math.min(3, opsCount); }
+  else { numsCount = randInt(5,10); maxOps = Math.min(4, opsCount); }
+
+  const useOps = sampleOps(ops, maxOps);
+  const numbers = Array.from({length: numsCount}, ()=> randInt(1, range));
+
+  // build tokens left-to-right (plain tokens use * and /) but we will reject if final result not integer
+  const tokens = [ String(numbers[0]) ];
+  for(let i=1;i<numsCount;i++){
+    let op = useOps[randInt(0, useOps.length-1)];
+    let n = numbers[i];
+    // if op is '/' try to increase chance of integer result by selecting divisor of a constructed left value,
+    // but since left might be an expression, we can't guarantee — so we'll rely on rejection when result not integer.
+    if(op === "/"){
+      if(n === 0) n = 1;
+      // occasional attempt: if previous token is a plain integer, set n to a divisor of it
+      const prevToken = tokens[tokens.length-1];
+      const prevNum = Number(prevToken);
+      if(Number.isInteger(prevNum) && prevNum > 0 && Math.random() < 0.45){
+        const divs = divisors(prevNum).filter(d=>d>0);
+        if(divs.length) n = divs[randInt(0, divs.length-1)];
+      }
     }
+    tokens.push(op, String(n));
+  }
 
-    // -------------------------
-    // Sorteio — timers, geração de expressões
-    // -------------------------
-    const elCfgAlert = document.getElementById("cfg-alert");
-    const elDrawAlert = document.getElementById("draw-alert");
-    const elHistory = document.getElementById("history");
-    const elCurrentExpression = document.getElementById("current-expression");
-    const elCountdownDisplay = document.getElementById("countdown-display");
+  // grouping (hard and normal have some grouping but limited)
+  let groupedTokens = tokens.slice();
+  if(level === "hard"){
+    if(Math.random() < 0.28) groupedTokens = applyGrouping(groupedTokens);
+  } else if(level === "normal"){
+    if(Math.random() < 0.12) groupedTokens = applyGroupingOnce(groupedTokens, "()"); 
+  }
 
-    function startGame(){
-      elCfgAlert.style.display = "none"; elDrawAlert.style.display = "none";
-      expressionsCanon.clear ? expressionsCanon.clear() : (expressionsCanon = new Set());
-      resultsSet.clear ? resultsSet.clear() : (resultsSet = new Set());
-      resultToDisplay = {};
-      elHistory.innerHTML = "";
-      elCurrentExpression.textContent = "Pronto para sortear…";
-      stopTimers();
+  const plainEvalExpr = groupedTokens.join(" ");
+  // display expression with nicer symbols
+  let displayExpr = plainEvalExpr.replace(/\*/g, " × ").replace(/\//g, " ÷ ");
+  displayExpr = displayExpr.replace(/\s+/g,' ').trim();
 
-      const ops = getSelectedOps();
-      if(ops.length === 0){
-        elCfgAlert.textContent = "Selecione ao menos uma operação."; elCfgAlert.style.display = "block"; return;
-      }
+  // evaluate exactly
+  let result = NaN;
+  try{
+    result = Function(`"use strict"; return (${plainEvalExpr.replace(/\[/g,'(').replace(/\]/g,')')});`)();
+  }catch(e){ result = NaN; }
+  if(!Number.isFinite(result)) return null;
+  // keep result as-is (no rounding); caller will enforce integer requirement
+  return { displayExpr, plainEvalExpr, result };
+}
 
-      const autoInt = parseInt(document.getElementById("auto-interval").value || "0");
-      if(autoInt > 0){
-        autoTimer = setInterval(()=>{ drawExpression(); }, autoInt * 1000);
-      }
+/* Utils para operações / agrupamentos */
+function getSelectedOps(){
+  const out = [];
+  if(document.getElementById("op-add").checked) out.push("+");
+  if(document.getElementById("op-sub").checked) out.push("-");
+  if(document.getElementById("op-mul").checked) out.push("*");
+  if(document.getElementById("op-div").checked) out.push("/");
+  return out;
+}
+function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function sampleOps(ops, maxCount){ if(!ops || ops.length===0) return ["+"]; if(maxCount>=ops.length) return ops.slice(); const arr=ops.slice(); for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];} return arr.slice(0,maxCount); }
+function divisors(n){ n = Math.abs(Math.floor(n)); const out=[]; for(let i=1;i<=Math.sqrt(n);i++){ if(n%i===0){ out.push(i); if(Math.floor(n/i)!==i) out.push(Math.floor(n/i)); } } return out; }
 
-      const mins = parseInt(document.getElementById("countdown").value || "0");
-      if(mins > 0){
-        timeLeft = mins * 60;
-        updateCountdown();
-        countdownTimer = setInterval(()=>{
-          timeLeft--; updateCountdown();
-          if(timeLeft <= 0){
-            stopTimers();
-            elDrawAlert.textContent = "Tempo esgotado — timers parados.";
-            elDrawAlert.className = "alert warn"; elDrawAlert.style.display = "block";
-          }
-        }, 1000);
-      } else {
-        elCountdownDisplay.textContent = "--:--";
-      }
-      showScreen("draw");
+function applyGrouping(tokens){
+  let out = tokens.slice();
+  out = applyGroupingOnce(out, Math.random()<0.5 ? "()" : "[]");
+  if(Math.random() < 0.22) out = applyGroupingOnce(out, Math.random()<0.5 ? "()" : "[]");
+  return out;
+}
+function applyGroupingOnce(tokens, bracket="()"){
+  if(tokens.length < 5) return tokens;
+  const numIdxs = [];
+  for(let i=0;i<tokens.length;i+=2) numIdxs.push(i);
+  if(numIdxs.length < 2) return tokens;
+  const i1 = numIdxs[randInt(0, numIdxs.length-2)];
+  const i2 = numIdxs[randInt(i1+1, numIdxs.length-1)];
+  const open = bracket[0], close = bracket[1];
+  return tokens.slice(0,i1).concat([open], tokens.slice(i1,i2+1), [close], tokens.slice(i2+1));
+}
+
+/* canonicalize plain expression (for uniqueness) */
+function canonicalize(s){ return s.replace(/\s+/g,'').replace(/\[/g,'(').replace(/\]/g,')'); }
+
+/* -------------------------
+   Verificação de número
+   ------------------------- */
+function checkNumber(){
+  const el = document.getElementById("check-result");
+  const raw = document.getElementById("check-number").value;
+  const n = parseInt(raw);
+  if(isNaN(n)){ el.className="alert danger"; el.style.display="block"; el.textContent="Digite um número válido."; return; }
+  const inCards = generatedCards.length ? generatedCards.some(card => card.includes(n)) : false;
+  const wasDrawn = resultsSet.has(n);
+  el.style.display = "block";
+  if(wasDrawn){
+    const expr = resultToDisplay[n] || "(expressão não encontrada)";
+    if(inCards){
+      el.className="alert success";
+      el.textContent = `✔ O número ${n} foi sorteado e está em uma cartela. Expressão: ${expr} = ${n}`;
+    } else {
+      el.className="alert warn";
+      el.textContent = `• O número ${n} foi sorteado (expressão: ${expr} = ${n}), mas não consta nas cartelas geradas.`;
     }
+  } else {
+    if(inCards){ el.className="alert warn"; el.textContent = `• O número ${n} está em alguma cartela, mas ainda NÃO foi sorteado.`; }
+    else { el.className="alert danger"; el.textContent = `✖ O número ${n} não está nas cartelas e não foi sorteado.`; }
+  }
+}
 
-    function stopTimers(){
-      if(autoTimer){ clearInterval(autoTimer); autoTimer = null; }
-      if(countdownTimer){ clearInterval(countdownTimer); countdownTimer = null; }
-    }
+/* -------------------------
+   Mostrar cartelas na tela de sorteio
+   ------------------------- */
+document.getElementById("toggle-cards").addEventListener("change", (e)=>{
+  const box = document.getElementById("cards-on-draw");
+  if(e.target.checked){ syncCardsOnDraw(); box.style.display="grid"; } else { box.style.display = "none"; }
+});
+function syncCardsOnDraw(){
+  const box = document.getElementById("cards-on-draw");
+  if(!document.getElementById("toggle-cards").checked) return;
+  box.innerHTML = "";
+  if(!generatedCards.length){ const empty = document.createElement("div"); empty.className="card"; empty.textContent="Nenhuma cartela gerada."; box.appendChild(empty); return; }
+  renderCardsPreview(box, generatedCards, cardSize);
+}
 
-    function updateCountdown(){ const m = Math.floor(timeLeft/60), s = timeLeft % 60; elCountdownDisplay.textContent = `${m}:${String(s).padStart(2,'0')}`; }
-
-    function clearDraws(){
-      expressionsCanon.clear ? expressionsCanon.clear() : (expressionsCanon = new Set());
-      resultsSet.clear ? resultsSet.clear() : (resultsSet = new Set());
-      resultToDisplay = {};
-      elHistory.innerHTML = ""; elCurrentExpression.textContent = "Pronto para sortear…";
-      elDrawAlert.style.display = "none";
-    }
-
-    function drawExpression(){
-      elDrawAlert.style.display = "none";
-      const difficulty = document.getElementById("difficulty").value;
-      const exprRange = parseInt(document.getElementById("expr-range").value || "300");
-      const drawMin = parseInt(document.getElementById("draw-min").value || "1");
-      const drawMax = parseInt(document.getElementById("draw-max").value || "100");
-
-      if(drawMax < drawMin){
-        elDrawAlert.textContent = "Intervalo de sorteio inválido (máx < mín)."; elDrawAlert.className = "alert danger"; elDrawAlert.style.display = "block"; return;
-      }
-
-      let tries = 0;
-      let chosen = null;
-      while(tries < 400){
-        tries++;
-        const candidate = generateExpressionWithPlain(difficulty, exprRange);
-        // candidate = {displayExpr, plainEvalExpr (JS), result}
-        if(candidate.result === undefined || candidate.result === null || isNaN(candidate.result)) continue;
-        if(candidate.result < drawMin || candidate.result > drawMax) continue;
-        const canon = canonicalize(candidate.plainEvalExpr);
-        if(expressionsCanon.has(canon)) continue;
-        if(resultsSet.has(candidate.result)) continue;
-        // accepted
-        chosen = candidate;
-        break;
-      }
-      if(!chosen){
-        elDrawAlert.textContent = "Não foi possível gerar expressão única. Ajuste opções/intervalos."; elDrawAlert.className = "alert danger"; elDrawAlert.style.display = "block";
-        return;
-      }
-
-      // store
-      const canonChosen = canonicalize(chosen.plainEvalExpr);
-      expressionsCanon.add(canonChosen);
-      resultsSet.add(chosen.result);
-      resultToDisplay[chosen.result] = chosen.displayExpr;
-
-      // update UI (display uses nice symbols)
-      elCurrentExpression.textContent = chosen.displayExpr + "  =  ?";
-      const item = document.createElement("div"); item.className = "item"; item.textContent = `${chosen.displayExpr}  =  (?)`;
-      elHistory.prepend(item);
-    }
-
-    // generateExpressionWithPlain returns { displayExpr, plainEvalExpr, result }
-    function generateExpressionWithPlain(level, range){
-      const ops = getSelectedOps();
-      const opsCount = Math.max(ops.length, 1);
-      let numsCount = 2, maxOps = 1;
-      if(level === "easy"){ numsCount = 2; maxOps = 1; }
-      else if(level === "normal"){ numsCount = randInt(2,5); maxOps = Math.min(3, opsCount); }
-      else { numsCount = randInt(5,10); maxOps = Math.min(4, opsCount); }
-
-      const useOps = sampleOps(ops, maxOps);
-      const numbers = Array.from({length: numsCount}, ()=> randInt(1, range));
-
-      // build tokens with JS-eval operators
-      const tokens = [String(numbers[0])];
-      for(let i=1;i<numsCount;i++){
-        const op = useOps[randInt(0, useOps.length-1)];
-        let n = numbers[i];
-        if(op === "/"){
-          if(n === 0) n = 1;
-          if(Math.random() < 0.35){
-            const prev = Number(tokens[tokens.length-1]);
-            if(Number.isInteger(prev) && prev > 0){
-              const divs = divisors(prev).filter(d => d > 0);
-              if(divs.length) n = divs[randInt(0, divs.length-1)];
-            }
-          }
-        }
-        tokens.push(op, String(n));
-      }
-
-      // grouping logic: only in 'normal' rare, in 'hard' occasional
-      let groupedTokens = tokens.slice();
-      if(level === "hard"){
-        if(Math.random() < 0.28) groupedTokens = applyGrouping(groupedTokens);
-      } else if(level === "normal"){
-        if(Math.random() < 0.12) groupedTokens = applyGroupingOnce(groupedTokens, "()"); // single group normally
-      }
-      // easy -> no parentheses
-
-      const plainEvalExpr = groupedTokens.join(" ");
-      // create display expression replacing * -> × and / -> ÷ and [ ] kept as bracket characters for display
-      let displayExpr = plainEvalExpr.replace(/\*/g, " × ").replace(/\//g, " ÷ ");
-      // remove duplicate spaces
-      displayExpr = displayExpr.replace(/\s+/g, ' ').trim();
-      // evaluate result safely
-      let result = NaN;
+/* -------------------------
+   Export histórico CSV
+   ------------------------- */
+function exportHistoryCSV(){
+  // build rows from history DOM (it stores display expressions)
+  const rows = [];
+  // include currently shown history items (display = "expr = (?)")
+  const items = document.querySelectorAll('#history .item');
+  items.forEach(it=>{
+    const txt = it.textContent || "";
+    // try find expression
+    const expr = txt.replace(' = (?)','').trim();
+    // find result if we have mapping resultToDisplay
+    let resultFound = Object.keys(resultToDisplay).find(k => resultToDisplay[k] === expr);
+    if(!resultFound){
+      // search by evaluating expression plain form (replace × ÷)
       try{
-        result = Function(`"use strict"; return (${plainEvalExpr.replace(/\[/g,"(").replace(/\]/g,")")});`)();
-      }catch(e){
-        result = NaN;
+        const plain = expr.replace(/×/g,'*').replace(/÷/g,'/').replace(/\[/g,'(').replace(/\]/g,')');
+        const val = Function(`"use strict"; return (${plain});`)();
+        if(Number.isFinite(val)) resultFound = String(Math.round(val));
+      }catch(e){}
+    }
+    rows.push([expr, resultFound || ""]);
+  });
+  // CSV content
+  let csv = "Expressão;Resultado\n";
+  rows.forEach(r => { csv += `${r[0]};${r[1]}\n`; });
+  const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'historico_bingo.csv';
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+
+/* -------------------------
+   Estado persistente (localStorage)
+   ------------------------- */
+function saveState(){
+  saveStateLocal(true);
+}
+function saveStateLocal(showAlert){
+  try{
+    const state = {
+      generatedCards, cardSize,
+      expressions: Array.from(expressionsCanon || []),
+      results: Array.from(resultsSet || []),
+      resultToDisplay,
+      settings: {
+        difficulty: document.getElementById("difficulty").value,
+        exprRange: document.getElementById("expr-range").value,
+        drawMin: document.getElementById("draw-min").value,
+        drawMax: document.getElementById("draw-max").value,
+        autoInterval: document.getElementById("auto-interval").value,
+        countdown: document.getElementById("countdown").value
       }
-      if(Number.isFinite(result)) result = Math.round(result);
-      else result = NaN;
-      return { displayExpr, plainEvalExpr, result };
+    };
+    localStorage.setItem('bingo_state_v1', JSON.stringify(state));
+    if(showAlert) alert("Estado salvo no navegador (localStorage).");
+  }catch(e){ if(showAlert) alert("Falha ao salvar estado: " + e.message); }
+}
+function loadState(){
+  try{
+    const raw = localStorage.getItem('bingo_state_v1');
+    if(!raw){ alert("Nenhum estado salvo encontrado."); return; }
+    const state = JSON.parse(raw);
+    generatedCards = state.generatedCards || [];
+    cardSize = state.cardSize || 5;
+    expressionsCanon = new Set(state.expressions || []);
+    resultsSet = new Set(state.results || []);
+    resultToDisplay = state.resultToDisplay || {};
+    // restore config UI
+    if(state.settings){
+      document.getElementById("difficulty").value = state.settings.difficulty || "normal";
+      document.getElementById("expr-range").value = state.settings.exprRange || "300";
+      document.getElementById("draw-min").value = state.settings.drawMin || "1";
+      document.getElementById("draw-max").value = state.settings.drawMax || "100";
+      document.getElementById("auto-interval").value = state.settings.autoInterval || "0";
+      document.getElementById("countdown").value = state.settings.countdown || "0";
     }
+    // render previews
+    renderCardsPreview(document.getElementById("cards-preview"), generatedCards, cardSize);
+    alert("Estado carregado do armazenamento local.");
+  }catch(e){ alert("Falha ao carregar estado: "+ e.message); }
+}
+function clearState(){
+  if(!confirm("Deseja realmente apagar o estado salvo no navegador?")) return;
+  localStorage.removeItem('bingo_state_v1');
+  alert("Estado apagado.");
+}
 
-    function getSelectedOps(){
-      const out = [];
-      if(document.getElementById("op-add").checked) out.push("+");
-      if(document.getElementById("op-sub").checked) out.push("-");
-      if(document.getElementById("op-mul").checked) out.push("*");
-      if(document.getElementById("op-div").checked) out.push("/");
-      return out;
-    }
+/* -------------------------
+   Helpers
+   ------------------------- */
+function getSelectedOps(){
+  const out = [];
+  if(document.getElementById("op-add").checked) out.push("+");
+  if(document.getElementById("op-sub").checked) out.push("-");
+  if(document.getElementById("op-mul").checked) out.push("*");
+  if(document.getElementById("op-div").checked) out.push("/");
+  return out;
+}
+function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function sampleOps(ops, maxCount){ if(!ops || ops.length===0) return ["+"]; if(maxCount>=ops.length) return ops.slice(); const arr=ops.slice(); for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]];} return arr.slice(0,maxCount); }
+function divisors(n){ n=Math.abs(Math.floor(n)); const out=[]; for(let i=1;i<=Math.sqrt(n);i++){ if(n%i===0){ out.push(i); if(n/i!==i) out.push(Math.floor(n/i)); }} return out; }
+function canonicalize(s){ return s.replace(/\s+/g,'').replace(/\[/g,'(').replace(/\]/g,')'); }
 
-    function applyGrouping(tokens){
-      let out = tokens.slice();
-      // up to 2 groups with some probability
-      out = applyGroupingOnce(out, Math.random() < 0.5 ? "()" : "[]");
-      if(Math.random() < 0.22) out = applyGroupingOnce(out, Math.random() < 0.5 ? "()" : "[]");
-      return out;
-    }
-    function applyGroupingOnce(tokens, bracket="()"){
-      if(tokens.length < 5) return tokens;
-      // token positions: numbers at even indexes (0,2,4..)
-      const numIndexes = [];
-      for(let i=0;i<tokens.length;i+=2) numIndexes.push(i);
-      if(numIndexes.length < 2) return tokens;
-      const i1 = numIndexes[randInt(0, numIndexes.length-2)];
-      const i2 = numIndexes[randInt(i1+1, numIndexes.length-1)];
-      const open = bracket[0], close = bracket[1];
-      const out = tokens.slice(0,i1).concat([open], tokens.slice(i1, i2+1), [close], tokens.slice(i2+1));
-      return out;
-    }
-
-    // -------------------------
-    // Verificação de número sorteado
-    // -------------------------
-    function checkNumber(){
-      const el = document.getElementById("check-result");
-      const raw = document.getElementById("check-number").value;
-      const n = parseInt(raw);
-      if(isNaN(n)){
-        el.className = "alert danger"; el.style.display="block"; el.textContent = "Digite um número válido."; return;
-      }
-      const inCards = generatedCards.length ? generatedCards.some(card => card.includes(n)) : false;
-      const wasDrawn = resultsSet.has(n);
-      el.style.display = "block";
-
-      if(wasDrawn){
-        // show expression that produced n (if available)
-        const expr = resultToDisplay[n];
-        if(inCards){
-          el.className = "alert success";
-          el.textContent = `✔ Número ${n} foi sorteado e está em uma cartela. Expressão: ${expr} = ${n}`;
-        } else {
-          el.className = "alert warn";
-          el.textContent = `• Número ${n} foi sorteado (expressão: ${expr} = ${n}), mas não consta nas cartelas geradas.`;
-        }
-      } else {
-        if(inCards){
-          el.className = "alert warn";
-          el.textContent = `• O número ${n} está em alguma cartela, mas ainda NÃO foi sorteado.`;
-        } else {
-          el.className = "alert danger";
-          el.textContent = `✖ O número ${n} não está nas cartelas e não foi sorteado.`;
-        }
-      }
-    }
-
-    // -------------------------
-    // Mostrar cartelas na tela de sorteio
-    // -------------------------
-    document.getElementById("toggle-cards").addEventListener("change", (e)=>{
-      const box = document.getElementById("cards-on-draw");
-      if(e.target.checked){
-        syncCardsOnDraw();
-        box.style.display = "grid";
-      } else {
-        box.style.display = "none";
-      }
-    });
-
-    function syncCardsOnDraw(){
-      const box = document.getElementById("cards-on-draw");
-      if(!document.getElementById("toggle-cards").checked) return;
-      box.innerHTML = "";
-      if(!generatedCards.length){
-        const empty = document.createElement("div"); empty.className = "card"; empty.textContent = "Nenhuma cartela gerada.";
-        box.appendChild(empty); return;
-      }
-      renderCardsPreview(box, generatedCards, cardSize);
-    }
-
-    // -------------------------
-    // Utilitários
-    // -------------------------
-    function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
-    function sampleOps(ops, maxCount){ if(!ops || ops.length===0) return ["+"]; if(maxCount >= ops.length) return ops.slice(); const arr = ops.slice(); for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr.slice(0, maxCount); }
-    function canonicalize(s){ return s.replace(/\s+/g,'').replace(/\[/g,'(').replace(/\]/g,')'); }
-    function divisors(n){ n = Math.abs(Math.floor(n)); const out=[]; for(let i=1;i<=Math.sqrt(n);i++){ if(n%i===0){ out.push(i); if(n/i!==i) out.push(Math.floor(n/i)); } } return out; }
-
-    // -------------------------
-    // Inicialização
-    // -------------------------
-    (function init(){
-      // nothing special for now
-    })();
-  </script>
+/* autocalls/initialization */
+(function init(){
+  // ensure only home visible at start
+  showScreen('home');
+  document.getElementById('cards-on-draw').style.display = 'none';
+})();
+</script>
 </body>
 </html>
