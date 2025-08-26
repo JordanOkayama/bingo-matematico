@@ -20,20 +20,30 @@
       --shadow: 0 10px 30px rgba(0,0,0,.35);
     }
     *{box-sizing:border-box}
-    body{margin:0;padding:0;background:#0b0f14;color:var(--text);font-family:"Inter",sans-serif}
+    html,body{margin:0;padding:0;background:radial-gradient(1200px 700px at 15% 10%, #12202f 0%, #0b0f14 50%), radial-gradient(1000px 600px at 95% 90%, #1a1028 0%, #0b0f14 60%); color:var(--text); font-family:"Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; min-height:100%}
+    a{color:inherit}
     .wrap{max-width:1200px;margin:32px auto;padding:0 16px}
     .glass{background:var(--glass);border:1px solid var(--stroke);backdrop-filter: blur(14px) saturate(130%);-webkit-backdrop-filter: blur(14px) saturate(130%);border-radius:18px;box-shadow: var(--shadow);}
     header.hero{padding:28px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
     .brand{display:flex;align-items:center;gap:12px}
     .logo{width:42px;height:42px;border-radius:12px;background: conic-gradient(from 120deg, #7c4dff, #19d3da, #7c4dff);box-shadow: 0 6px 18px rgba(123,77,255,.35);}
-    .brand h1{margin:0;font-size:1.35rem}
+    .brand h1{margin:0;font-size:1.35rem;letter-spacing:.3px}
     .hero-actions{display:flex;gap:10px;flex-wrap:wrap}
-    .btn{padding:12px 18px;border:none;border-radius:12px;cursor:pointer;font-weight:700;color:#0c0f14;background: linear-gradient(135deg, #8a63ff, #19d3da);box-shadow: 0 8px 24px rgba(138,99,255,.35);transition: .2s}
-    .btn:hover{transform: translateY(-2px);box-shadow:0 10px 28px rgba(138,99,255,.45)}
+    .btn{padding:12px 18px;border:none;border-radius:12px;cursor:pointer;font-weight:700;letter-spacing:.2px;color:#0c0f14;position:relative;overflow:hidden;isolation:isolate;background: linear-gradient(135deg, #8a63ff, #19d3da);box-shadow: 0 8px 24px rgba(138,99,255,.35);transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;}
+    .btn:hover{transform: translateY(-1px); box-shadow:0 10px 28px rgba(138,99,255,.45)}
+    .btn:active{transform: translateY(0)}
+    .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--stroke);box-shadow:none;}
     .btn.success{background: linear-gradient(135deg, #2ed573, #19d3da)}
     .btn.danger{background: linear-gradient(135deg, #ff6b81, #ff9a9e)}
     .section{margin-top:22px;padding:22px}
     .section h2{margin:0 0 6px 0;font-size:1.2rem}
+    .section .hint{color:var(--muted);font-size:.9rem;margin:0 0 12px 0}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    @media (max-width: 860px){.grid-2{grid-template-columns:1fr}}
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    label{font-weight:600;font-size:.93rem;margin:8px 0 6px 2px;display:block}
+    input[type=number],select, input[type=text]{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--stroke);background: rgba(255,255,255,.06);color:var(--text);outline:none;}
+    .kpi{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;border:1px dashed var(--stroke);background:rgba(255,255,255,.04);color:var(--muted);font-size:.92rem}
     .screen{display:none}
     .screen.active{display:block}
     .expression{font-size:1.6rem;font-weight:800;margin:10px 0 14px 0;color:#f4f6ff;text-shadow:0 2px 18px rgba(138,99,255,.25)}
@@ -41,34 +51,47 @@
     .history .item{padding:8px 10px;border-bottom:1px dashed var(--stroke);font-weight:600}
     .history .item:last-child{border-bottom:none}
     .cards-wrap{display:grid;grid-template-columns:repeat(auto-fit, minmax(260px,1fr));gap:14px;margin-top:12px}
-    .card{padding:12px;border-radius:14px;border:2px solid var(--accent);background:linear-gradient(160deg, rgba(138,99,255,0.15), rgba(25,211,218,0.15));box-shadow:0 6px 16px rgba(0,0,0,0.4)}
+    .card{padding:12px;border-radius:14px;border:1px solid var(--stroke);background: rgba(255,255,255,.06);}
     .ticket-grid{display:grid;gap:6px}
     .ticket-grid[data-size="3"]{grid-template-columns:repeat(3,1fr)}
     .ticket-grid[data-size="5"]{grid-template-columns:repeat(5,1fr)}
     .ticket-grid[data-size="7"]{grid-template-columns:repeat(7,1fr)}
-    .cell{border:1px solid var(--stroke);border-radius:8px;padding:14px;text-align:center;font-weight:800;font-size:1.2rem;background:rgba(255,255,255,0.07)}
-    .cell:nth-child(even){background:rgba(255,255,255,0.12)}
+    .cell{border:1px solid var(--stroke);border-radius:8px;padding:7px 8px;text-align:center;font-weight:700;background:rgba(255,255,255,.06)}
     .alert{padding:10px 12px;border-radius:12px;margin:10px 0;font-weight:600}
-    .alert.success{background:rgba(46,213,115,.08);border:1px solid rgba(46,213,115,.35);color:#9bffc2}
+    .alert.warn{background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.35);color:#ffe39b}
     .alert.danger{background:rgba(255,109,120,.08);border:1px solid rgba(255,109,120,.4);color:#ffc2c7}
+    .alert.success{background:rgba(46,213,115,.08);border:1px solid rgba(46,213,115,.35);color:#9bffc2}
+    footer{color:var(--muted);text-align:center;margin:20px 0 34px 0;font-size:.9rem}
+    .sep{height:1px;background:linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent); margin:14px 0}
+    .tiny{font-size:.85rem;color:var(--muted)}
+    .muted{color:var(--muted)}
+    .switch{display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+    .switch input{display:none}
+    .toggle{width:48px;height:28px;border-radius:999px;position:relative;background:rgba(255,255,255,.15);border:1px solid var(--stroke)}
+    .dot{position:absolute;top:50%;left:4px;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;background:#fff;transition: left .15s}
+    .switch input:checked + .toggle .dot{left:24px}
+    .inline-help{font-size:.85rem;color:var(--muted);margin-left:6px}
   </style>
 </head>
 <body>
   <div class="wrap">
+    <!-- HERO -->
     <header class="hero glass">
       <div class="brand"><div class="logo"></div><h1>Bingo Matemático</h1></div>
       <div class="hero-actions">
         <button class="btn" data-target="generate">Gerar cartela</button>
         <button class="btn success" data-target="config">Começar sorteio</button>
-        <button class="btn danger" data-target="home">Início</button>
+        <button class="btn ghost" data-target="home">Início</button>
       </div>
     </header>
 
+    <!-- HOME -->
     <section id="home" class="screen active section glass">
-      <h2>Bem-vindo!</h2>
-      <p>Gere cartelas ou configure o sorteio.</p>
+      <h2>Pronto para jogar?</h2>
+      <p class="hint">Gere cartelas para a turma ou configure o sorteio. O resultado não é mostrado nas expressões.</p>
     </section>
 
+    <!-- GERAR CARTELAS -->
     <section id="generate" class="screen section glass">
       <h2>Gerador de cartelas</h2>
       <label>Intervalo mínimo</label><input id="min-number" type="number" value="1"/>
@@ -81,6 +104,7 @@
       <div id="cards-preview" class="cards-wrap"></div>
     </section>
 
+    <!-- CONFIG -->
     <section id="config" class="screen section glass">
       <h2>Configurações do sorteio</h2>
       <label>Dificuldade</label>
@@ -95,25 +119,28 @@
       <button class="btn success" onclick="startGame()">Iniciar</button>
     </section>
 
+    <!-- SORTEIO -->
     <section id="draw" class="screen section glass">
       <h2>Sorteio</h2>
       <div class="expression" id="current-expression">Pronto…</div>
       <button class="btn" onclick="drawExpression()">Sortear expressão</button>
-      <button class="btn danger" onclick="clearDraws()">Limpar sorteio</button>
+      <button class="btn" onclick="clearDraws()">Limpar sorteio</button>
       <h3>Histórico</h3>
       <div id="history" class="history"></div>
       <h3>Verificação</h3>
-      <input type="number" id="check-number"><button class="btn success" onclick="checkNumber()">Verificar</button>
+      <input type="number" id="check-number"><button class="btn" onclick="checkNumber()">Verificar</button>
       <div id="check-result" class="alert" style="display:none"></div>
     </section>
   </div>
 
   <script>
-    let generatedCards=[],cardSize=5,expressionsSet=new Set(),resultsMap=new Map();
+    let generatedCards = [], cardSize=5, expressionsSet=new Set(), resultsMap=new Map();
 
+    // Navegação
     document.querySelectorAll("[data-target]").forEach(b=>b.onclick=()=>showScreen(b.dataset.target));
     function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");}
 
+    // Gerar cartelas
     document.getElementById("btn-generate").onclick=()=>{
       const min=+document.getElementById("min-number").value,max=+document.getElementById("max-number").value,count=+document.getElementById("card-count").value;
       cardSize=+document.getElementById("grid-size").value;
@@ -123,27 +150,15 @@
     function generateCard(min,max,size){const pool=[];for(let i=min;i<=max;i++)pool.push(i);for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}return pool.slice(0,size*size);}
     function renderCards(){const c=document.getElementById("cards-preview");c.innerHTML="";generatedCards.forEach(nums=>{const card=document.createElement("div");card.className="card";const grid=document.createElement("div");grid.className="ticket-grid";grid.dataset.size=cardSize;nums.forEach(n=>{const cell=document.createElement("div");cell.className="cell";cell.textContent=n;grid.appendChild(cell)});card.appendChild(grid);c.appendChild(card);});}
 
-    // PDF export: 4 cartelas por página
+    // PDF export
     document.getElementById("btn-pdf").onclick=()=>{
       if(!generatedCards.length)return;
-      const {jsPDF}=window.jspdf;
-      const doc=new jsPDF({orientation:"landscape",unit:"pt",format:"a4"});
-      const pageW=doc.internal.pageSize.getWidth(),pageH=doc.internal.pageSize.getHeight();
-      const perPage=4, cellPadding=6;
-      generatedCards.forEach((nums,idx)=>{
-        if(idx%perPage===0 && idx!==0)doc.addPage();
-        const pos=idx%perPage;
-        const offsetX= (pos%2)*(pageW/2);
-        const offsetY= Math.floor(pos/2)*(pageH/2);
-        const size=cardSize,cell=Math.min((pageW/2-80)/size,(pageH/2-80)/size);
-        doc.setFont("helvetica","bold");doc.setFontSize(18);
-        doc.text(`Cartela ${idx+1}`,offsetX+40,offsetY+30);
-        doc.setFontSize(16);
-        for(let r=0;r<size;r++){for(let c=0;c<size;c++){const n=nums[r*size+c];doc.rect(offsetX+40+c*cell,offsetY+50+r*cell,cell,cell);doc.text(String(n),offsetX+40+c*cell+cell/2,offsetY+50+r*cell+cell/2,{align:"center",baseline:"middle"});}}
-      });
-      doc.save("cartelas.pdf");
+      const {jsPDF}=window.jspdf,doc=new jsPDF({unit:"pt",format:"a4"});
+      const pageW=doc.internal.pageSize.getWidth(),margin=40;
+      generatedCards.forEach((nums,idx)=>{if(idx>0)doc.addPage();doc.setFont("helvetica","bold");doc.setFontSize(20);doc.text(`Cartela ${idx+1}`,margin,margin);const size=cardSize;const cell=(pageW-margin*2)/size;doc.setFontSize(18);for(let r=0;r<size;r++){for(let c=0;c<size;c++){const n=nums[r*size+c];doc.rect(margin+c*cell,margin+30+r*cell,cell,cell);doc.text(String(n),margin+c*cell+cell/2,margin+30+r*cell+cell/2,{align:"center",baseline:"middle"});}}});doc.save("cartelas.pdf");
     };
 
+    // Sorteio
     function startGame(){expressionsSet.clear();resultsMap.clear();showScreen("draw");}
     function clearDraws(){expressionsSet.clear();resultsMap.clear();document.getElementById("history").innerHTML="";document.getElementById("current-expression").textContent="Pronto…";}
     function drawExpression(){let expr="",val;let tries=0;do{[expr,val]=genExpr();tries++;if(tries>100)return;}while(resultsMap.has(val));expressionsSet.add(expr);resultsMap.set(val,expr);document.getElementById("current-expression").textContent=expr;const i=document.createElement("div");i.className="item";i.textContent=`${expr} = (?)`;document.getElementById("history").prepend(i);}
@@ -152,6 +167,7 @@
     function op(id){return document.getElementById(id).checked;}
     function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
 
+    // Verificação
     function checkNumber(){const n=+document.getElementById("check-number").value,res=document.getElementById("check-result");if(isNaN(n)){res.className="alert danger";res.style.display="block";res.textContent="Número inválido.";return;}if(resultsMap.has(n)){res.className="alert success";res.style.display="block";res.textContent=`✔ O número ${n} foi sorteado (expressão: ${resultsMap.get(n)}).`;}else{res.className="alert danger";res.style.display="block";res.textContent=`✖ O número ${n} não foi sorteado.`;}}
   </script>
 </body>
